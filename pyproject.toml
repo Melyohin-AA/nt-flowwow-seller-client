@@ -1,0 +1,27 @@
+[project]
+name = "nt-flowwow-seller-client"
+version = "0.0.1"
+authors = [
+	{ name="Melyohin-AA", email="melyohin.aa@gmail.com" },
+]
+description = "Nt's Client for Flowwow Seller API"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+	"Programming Language :: Python :: 3",
+	"Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICENSE.txt"]
+dynamic = ["dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/Melyohin-AA/nt-flowwow-seller-client"
+Issues = "https://github.com/Melyohin-AA/nt-flowwow-seller-client/issues"
+
+[build-system]
+requires = ["setuptools == 82.0.1"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }

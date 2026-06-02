@@ -1,0 +1,13 @@
+# Python
+venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.coverage
+
+# Packaging
+dist/
+*.egg-info/
+
+# IDE
+.vscode/
