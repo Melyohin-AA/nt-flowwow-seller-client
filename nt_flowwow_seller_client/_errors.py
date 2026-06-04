@@ -70,5 +70,5 @@ _BAD_RESP_ERR_DERS = {
 }
 
 
-def _make_bad_resp_err_der_from_code(code: int) -> FwBadResponseStatusError:
+def make_bad_resp_err_der_from_code(code: int) -> FwBadResponseStatusError:
     return der() if (der := _BAD_RESP_ERR_DERS.get(code)) else FwUnexpectedResponseStatusError(code)

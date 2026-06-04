@@ -1,6 +1,6 @@
 import pytest
-import nt_flowwow_seller_client.respmodels as m
-from nt_flowwow_seller_client.errors import FwParsingError
+import nt_flowwow_seller_client._respmodels as m
+from nt_flowwow_seller_client._errors import FwParsingError
 
 
 @pytest.mark.parametrize(
@@ -131,7 +131,7 @@ def test_make_flat_product_error():
     PRODUCT_ID = 9823487
     MESSAGE = "everything is wrong!!"
     raw = {"offerId": OFFER_ID, "productId": PRODUCT_ID, "message": MESSAGE}
-    err = m.FwFlatProductError(dict(raw))
+    err = m.FwFlatProductRespErr(dict(raw))
     assert err.raw == raw
     assert err.offer_id == OFFER_ID
     assert err.product_id == PRODUCT_ID

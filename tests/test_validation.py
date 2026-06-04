@@ -1,6 +1,6 @@
 import pytest
 import nt_flowwow_seller_client._validation as v
-from nt_flowwow_seller_client.errors import FwValidationError
+from nt_flowwow_seller_client._errors import FwValidationError
 
 
 @pytest.mark.parametrize(

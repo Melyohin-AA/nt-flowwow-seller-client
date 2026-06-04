@@ -1,5 +1,5 @@
 from typing import Any, TypeVar
-from .errors import FwParsingError
+from ._errors import FwParsingError
 
 
 T = TypeVar("T")
@@ -126,7 +126,7 @@ class FwProduct:
 
 # Partial errors
 
-class FwFlatProductError:
+class FwFlatProductRespErr:
     """Base flat partial product related error"""
 
     def __init__(self, raw: dict[str, Any]) -> None:
@@ -136,13 +136,13 @@ class FwFlatProductError:
         self.message = _read(raw, "message", str)
 
 
-class FwOfferMappingError(FwFlatProductError):
+class FwOfferMappingRespErr(FwFlatProductRespErr):
     """Partial product related error of offer mapping"""
 
     pass
 
 
-class FwProductActiveError(FwFlatProductError):
+class FwProductActiveRespErr(FwFlatProductRespErr):
     """Partial product related error of product activeness setting"""
 
     def __init__(self, raw: dict[str, Any]) -> None:
@@ -150,7 +150,7 @@ class FwProductActiveError(FwFlatProductError):
         self.is_active = _read_opt(raw, "isActive", bool)
 
 
-class FwStockUpdatingError(FwFlatProductError):
+class FwStockUpdatingRespErr(FwFlatProductRespErr):
     """Partial product related error of stock updating"""
 
     def __init__(self, raw: dict[str, Any]) -> None:

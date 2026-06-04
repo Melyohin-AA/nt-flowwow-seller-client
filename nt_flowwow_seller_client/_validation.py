@@ -1,5 +1,5 @@
 from typing import Any, Callable, TypeVar
-from .errors import FwValidationError
+from ._errors import FwValidationError
 
 
 T = TypeVar("T")

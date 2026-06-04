@@ -2,9 +2,9 @@ from typing import Any, AsyncGenerator
 import pytest
 import pytest_asyncio
 from aioresponses import aioresponses
-import nt_flowwow_seller_client.reqmodels as reqmodels
-import nt_flowwow_seller_client.respmodels as respmodels
-from nt_flowwow_seller_client.client import FwClient, _authorize, _parse_ok_response_error_list
+import nt_flowwow_seller_client._reqmodels as _reqmodels
+import nt_flowwow_seller_client._respmodels as _respmodels
+from nt_flowwow_seller_client._client import FwClient, _authorize, _parse_ok_response_error_list
 import tests.model_utils as model_utils
 
 
@@ -79,8 +79,8 @@ def test_authorize(token, headers, expected):
                 ]
             },
             [
-                respmodels.FwOfferMappingError({"offerId": "1001", "productId": 101001, "message": "nope"}),
-                respmodels.FwOfferMappingError({"offerId": "1002", "productId": 101002, "message": "nah"}),
+                _respmodels.FwOfferMappingRespErr({"offerId": "1001", "productId": 101001, "message": "nope"}),
+                _respmodels.FwOfferMappingRespErr({"offerId": "1002", "productId": 101002, "message": "nah"}),
             ]
         ),
         ({"shopId": 1, "summary": {}, "data": [], "errors": []}, []),
@@ -89,7 +89,7 @@ def test_authorize(token, headers, expected):
     ]
 )
 def test_parse_ok_response_error_list(content, expected_errors):
-    actual_errors = _parse_ok_response_error_list(content, respmodels.FwOfferMappingError)
+    actual_errors = _parse_ok_response_error_list(content, _respmodels.FwOfferMappingRespErr)
     model_utils.verify_offer_mapping_errors_equal(expected_errors, actual_errors)
 
 
@@ -98,12 +98,12 @@ def test_parse_ok_response_error_list(content, expected_errors):
     "status, page, limit, shop_ids, expected_shops, expected_body",
     [
         (
-            reqmodels.FwShopStatus.ACTIVE, 0, 48, None,
+            _reqmodels.FwShopStatus.ACTIVE, 0, 48, None,
             model_utils.make_shop_page({"shops": [], "total": 0}),
-            {"status": reqmodels.FwShopStatus.ACTIVE.value, "page": 0, "limit": 48}
+            {"status": _reqmodels.FwShopStatus.ACTIVE.value, "page": 0, "limit": 48}
         ),
         (
-            reqmodels.FwShopStatus.DISABLED, 2, 34, None,
+            _reqmodels.FwShopStatus.DISABLED, 2, 34, None,
             model_utils.make_shop_page({
                 "shops": [{
                     "shopId": 101,
@@ -115,7 +115,12 @@ def test_parse_ok_response_error_list(content, expected_errors):
                     "workingDays": ["1", "2", "3", "4", "5"]
                 }],
                 "total": 69
-            }), {"status": reqmodels.FwShopStatus.DISABLED.value, "page": 2, "limit": 34}
+            }), {"status": _reqmodels.FwShopStatus.DISABLED.value, "page": 2, "limit": 34}
+        ),
+        (
+            _reqmodels.FwShopStatus.MODERATION, 1, 2, [1, 2, 3],
+            model_utils.make_shop_page({"shops": [], "total": 0}),
+            {"status": _reqmodels.FwShopStatus.MODERATION.value, "page": 1, "limit": 2, "shopIds": [1, 2, 3]}
         ),
     ]
 )
@@ -140,20 +145,28 @@ async def test_get_shops(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "page, limit, offer_ids, product_ids, category_ids, type, expected_products, expected_body",
+    "page, limit, ids, category_ids, type, expected_products, expected_body",
     [
         (
-            0, 498, ["FLOW-001", "FLOW-002"], [123, 456], [7, 8], 2,
+            0, 498, _reqmodels.FwProductIdQueryList([123, 456]), [7, 8], 2,
             model_utils.make_product_page({"items": [], "total": 0}), {
                 "page": 0, "limit": 498,
-                "offerIds": ["FLOW-001", "FLOW-002"],
                 "productIds": [123, 456],
                 "categoryIds": [7, 8],
                 "type": 2,
             }
         ),
         (
-            2, 100, None, None, None, None,
+            0, 420, _reqmodels.FwOfferIdQueryList(["FLOW-001", "FLOW-002"]), [3], 1,
+            model_utils.make_product_page({"items": [], "total": 0}), {
+                "page": 0, "limit": 420,
+                "offerIds": ["FLOW-001", "FLOW-002"],
+                "categoryIds": [3],
+                "type": 1,
+            }
+        ),
+        (
+            2, 100, None, None, None,
             model_utils.make_product_page({
                 "items": [{
                     "offerId": "OLAK5uy_nzaNSOqnI6dSpxpibb-5c7C6baXvlZUks",
@@ -185,11 +198,7 @@ async def test_get_shops(
         ),
     ]
 )
-async def test_get_products(
-    client: FwClient,
-    page, limit, offer_ids, product_ids, category_ids, type,
-    expected_products, expected_body,
-):
+async def test_get_products(client: FwClient, page, limit, ids, category_ids, type, expected_products, expected_body):
     URL = f"https://apis.flowwow.com/apiseller/products?shopId={SHOP_ID}"
     actual_reqs = []
     with aioresponses() as mocked:
@@ -200,9 +209,7 @@ async def test_get_products(
         )
         # act
         shop = client.merchant(TOKEN).shop(SHOP_ID)
-        actual_products = await shop.get_products(
-            page, limit, offer_ids=offer_ids, product_ids=product_ids, category_ids=category_ids, type=type,
-        )
+        actual_products = await shop.get_products(page, limit, ids=ids, category_ids=category_ids, type=type)
         # assert
         mocked.assert_called_once()
         verify_request(actual_reqs, URL, expected_body)
@@ -214,7 +221,7 @@ async def test_get_products(
     "mappings, resp_body, expected_body",
     [
         (
-            [reqmodels.FwOfferMapping(123456, "1098")],
+            [_reqmodels.FwOfferMapping(123456, "1098")],
             {
                 "shopId": SHOP_ID,
                 "summary": {
@@ -225,7 +232,7 @@ async def test_get_products(
             {"offers": [{"offerId": "1098", "productId": 123456}]}
         ),
         (
-            [reqmodels.FwOfferMapping(83418243, "1099")],
+            [_reqmodels.FwOfferMapping(83418243, "1099")],
             {
                 "shopId": SHOP_ID,
                 "summary": {
@@ -245,7 +252,7 @@ async def test_get_products(
 async def test_map_offers(client: FwClient, mappings, resp_body, expected_body):
     URL = f"https://apis.flowwow.com/apiseller/products/offersMappings?shopId={SHOP_ID}"
     actual_reqs = []
-    expected_errors = [respmodels.FwOfferMappingError(err) for err in resp_body["errors"]]
+    expected_errors = [_respmodels.FwOfferMappingRespErr(err) for err in resp_body["errors"]]
     with aioresponses() as mocked:
         # mock
         mocked.post(URL, payload=resp_body, callback=lambda url, **kwargs: actual_reqs.append((url, kwargs)))
@@ -313,7 +320,7 @@ async def test_map_offers(client: FwClient, mappings, resp_body, expected_body):
 async def test_set_product_active(client: FwClient, offer_ids, active, action, resp_body, expected_body):
     URL = f"https://apis.flowwow.com/apiseller/products/{action}?shopId={SHOP_ID}"
     actual_reqs = []
-    expected_errors = [respmodels.FwProductActiveError(err) for err in resp_body["errors"]]
+    expected_errors = [_respmodels.FwProductActiveRespErr(err) for err in resp_body["errors"]]
     with aioresponses() as mocked:
         # mock
         mocked.post(URL, payload=resp_body, callback=lambda url, **kwargs: actual_reqs.append((url, kwargs)))
@@ -336,12 +343,12 @@ async def test_set_product_active(client: FwClient, offer_ids, active, action, r
             {"offers": []}
         ),
         (
-            [reqmodels.FwProductStock("1098", 42)],
+            [_reqmodels.FwProductStock("1098", 42)],
             {"shopId": SHOP_ID, "errors": []},
             {"offers": [{"offerId": "1098", "stock": 42}]}
         ),
         (
-            [reqmodels.FwProductStock("1097", 41), reqmodels.FwProductStock("1099", 43)],
+            [_reqmodels.FwProductStock("1097", 41), _reqmodels.FwProductStock("1099", 43)],
             {
                 "shopId": SHOP_ID,
                 "errors": [
@@ -371,7 +378,7 @@ async def test_set_product_active(client: FwClient, offer_ids, active, action, r
 async def test_update_stocks(client: FwClient, changes, resp_body, expected_body):
     URL = f"https://apis.flowwow.com/apiseller/stocks/put?shopId={SHOP_ID}"
     actual_reqs = []
-    expected_errors = [respmodels.FwStockUpdatingError(err) for err in resp_body["errors"]]
+    expected_errors = [_respmodels.FwStockUpdatingRespErr(err) for err in resp_body["errors"]]
     with aioresponses() as mocked:
         # mock
         mocked.put(URL, payload=resp_body, callback=lambda url, **kwargs: actual_reqs.append((url, kwargs)))

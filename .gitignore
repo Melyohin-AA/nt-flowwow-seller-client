@@ -1,9 +1,12 @@
 # Python
 venv/
 __pycache__/
+
+# Testing
 .mypy_cache/
 .pytest_cache/
 .coverage
+htmlcov/
 
 # Packaging
 dist/
