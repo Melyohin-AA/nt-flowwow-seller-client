@@ -4,7 +4,7 @@ version = "0.0.1"
 authors = [
 	{ name="Melyohin-AA", email="melyohin.aa@gmail.com" },
 ]
-description = "Nt's Client for Flowwow Seller API"
+description = "Client for Flowwow Seller API"
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [

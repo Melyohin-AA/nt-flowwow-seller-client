@@ -1,18 +1,18 @@
 from typing import Any, Callable, TypeVar
-import nt_flowwow_seller_client._respmodels as _respmodels
+import nt_flowwow_seller_client._respmodels as respmodels
 
 
-def make_shop_page(raw_page: dict[str, Any]) -> _respmodels.FwPage[_respmodels.FwShop]:
-    return _respmodels.FwPage(raw_page, "shops", _respmodels.FwShop)
+def make_shop_page(raw_page: dict[str, Any]) -> respmodels.FwPage[respmodels.FwShop]:
+    return respmodels.FwPage(raw_page, "shops", respmodels.FwShop)
 
 
-def make_product_page(raw_page: dict[str, Any]) -> _respmodels.FwPage[_respmodels.FwProduct]:
-    return _respmodels.FwPage(raw_page, "items", _respmodels.FwProduct)
+def make_product_page(raw_page: dict[str, Any]) -> respmodels.FwPage[respmodels.FwProduct]:
+    return respmodels.FwPage(raw_page, "items", respmodels.FwProduct)
 
 
 T = TypeVar("T")
 
-def verify_pages_equal(e: _respmodels.FwPage[T], a: _respmodels.FwPage[T], vf: Callable[[T, T], None]) -> None:
+def verify_pages_equal(e: respmodels.FwPage[T], a: respmodels.FwPage[T], vf: Callable[[T, T], None]) -> None:
     assert e.raw == a.raw
     assert e.total == a.total
     assert len(e.items) == len(a.items)
@@ -20,7 +20,7 @@ def verify_pages_equal(e: _respmodels.FwPage[T], a: _respmodels.FwPage[T], vf: C
         vf(a_item, b_item)
 
 
-def verify_shops_equal(e: _respmodels.FwShop, a: _respmodels.FwShop) -> None:
+def verify_shops_equal(e: respmodels.FwShop, a: respmodels.FwShop) -> None:
     assert e.raw == a.raw
     assert e.shop_id == a.shop_id
     assert e.name == a.name
@@ -28,7 +28,7 @@ def verify_shops_equal(e: _respmodels.FwShop, a: _respmodels.FwShop) -> None:
     assert e.is_verified == a.is_verified
 
 
-def verify_products_equal(e: _respmodels.FwProduct, a: _respmodels.FwProduct) -> None:
+def verify_products_equal(e: respmodels.FwProduct, a: respmodels.FwProduct) -> None:
     assert e.raw == a.raw
     assert e.offer_id == a.offer_id
     assert e.product_id == a.product_id
@@ -42,7 +42,7 @@ def verify_products_equal(e: _respmodels.FwProduct, a: _respmodels.FwProduct) ->
     assert e.currency_code == a.currency_code
 
 
-def _verify_flat_product_errors_equal(e: _respmodels.FwFlatProductRespErr, a: _respmodels.FwFlatProductRespErr) -> None:
+def _verify_flat_product_errors_equal(e: respmodels.FwFlatProductRespErr, a: respmodels.FwFlatProductRespErr) -> None:
     assert e.raw == a.raw
     assert e.offer_id == a.offer_id
     assert e.product_id == a.product_id
@@ -50,7 +50,7 @@ def _verify_flat_product_errors_equal(e: _respmodels.FwFlatProductRespErr, a: _r
 
 
 def verify_offer_mapping_errors_equal(
-    e_list: list[_respmodels.FwOfferMappingRespErr], a_list: list[_respmodels.FwOfferMappingRespErr],
+    e_list: list[respmodels.FwOfferMappingRespErr], a_list: list[respmodels.FwOfferMappingRespErr],
 ) -> None:
     assert len(e_list) == len(a_list)
     for e, a in zip(e_list, a_list):
@@ -58,7 +58,7 @@ def verify_offer_mapping_errors_equal(
 
 
 def verify_product_activeness_errors_equal(
-    e_list: list[_respmodels.FwProductActiveRespErr], a_list: list[_respmodels.FwProductActiveRespErr],
+    e_list: list[respmodels.FwProductActiveRespErr], a_list: list[respmodels.FwProductActiveRespErr],
 ) -> None:
     assert len(e_list) == len(a_list)
     for e, a in zip(e_list, a_list):
@@ -67,7 +67,7 @@ def verify_product_activeness_errors_equal(
 
 
 def verify_stock_updating_errors_equal(
-    e_list: list[_respmodels.FwStockUpdatingRespErr], a_list: list[_respmodels.FwStockUpdatingRespErr],
+    e_list: list[respmodels.FwStockUpdatingRespErr], a_list: list[respmodels.FwStockUpdatingRespErr],
 ) -> None:
     assert len(e_list) == len(a_list)
     for e, a in zip(e_list, a_list):

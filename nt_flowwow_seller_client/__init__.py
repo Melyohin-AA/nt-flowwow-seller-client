@@ -1,8 +1,11 @@
 from ._client import FwClient
 from ._errors import (
     FwError,
+    FwInitializationError,
+    FwFinalizationError,
     FwValidationError,
     FwParsingError,
+    FwNetworkError,
     FwBadResponseStatusError,
     FwUnexpectedResponseStatusError,
     FwTokenRejectedError,

@@ -1,8 +1,14 @@
 import aiohttp
+import json
 from typing import Any, Iterable, TypeVar
-from ._errors import make_bad_resp_err_der_from_code
+from ._errors import (
+    make_bad_resp_err_der_from_code,
+    FwError, FwInitializationError, FwFinalizationError, FwParsingError, FwNetworkError,
+)
 from ._reqmodels import FwShopStatus, FwProductIdQueryList, FwOfferIdQueryList, FwOfferMapping, FwProductStock
-from ._respmodels import FwPage, FwShop, FwProduct, FwOfferMappingRespErr, FwProductActiveRespErr, FwStockUpdatingRespErr
+from ._respmodels import (
+    FwPage, FwShop, FwProduct, FwOfferMappingRespErr, FwProductActiveRespErr, FwStockUpdatingRespErr,
+)
 from ._validation import (
     validate, validate_query_list,
     is_token_valid, is_int32_id_valid, is_offer_id_valid,
@@ -16,7 +22,7 @@ def _authorize(token: str, headers: dict[str, str]) -> dict[str, str]:
 
 
 def _check_response_status(code: int) -> None:
-    if code != 200:
+    if code // 100 != 2:
         raise make_bad_resp_err_der_from_code(code)
 
 
@@ -32,13 +38,34 @@ def _parse_ok_response_error_list(content: Any, t: type[TRespErr]) -> list[TResp
 
 
 class FwClient:
-    def __init__(self, domain="apis.flowwow.com") -> None:
-        self._domain = domain
-        self._http = aiohttp.ClientSession()
+    def __init__(self) -> None:
+        """
+        Intializes an instance and allocates resources for it.
+
+        Note: Requires a running event loop.
+
+        :raises FwInitializationError:
+        :raises FwError:
+        """
+        self._domain = "apis.flowwow.com"
+        try:
+            self._http = aiohttp.ClientSession()
+        except Exception as err:
+            raise FwInitializationError(err)
 
     async def close(self) -> None:
-        """Releases resources. An object and its child objects must not be used after calling this method"""
-        await self._http.close()
+        """
+        Finalizes an instance releasing its resources.
+
+        Note: An object and its child objects must not be used after calling this method.
+
+        :raises FwFinalizationError:
+        :raises FwError:
+        """
+        try:
+            await self._http.close()
+        except Exception as err:
+            raise FwFinalizationError(err)
 
     def merchant(self, token: str) -> "FwClient.Merchant":
         """
@@ -52,6 +79,18 @@ class FwClient:
         :raises FwError:
         """
         return FwClient.Merchant(self, token)
+
+    async def _request(self, *args, **kwargs) -> Any:
+        try:
+            async with self._http.request(*args, **kwargs) as resp:
+                _check_response_status(resp.status)
+                return await resp.json(loads=json.loads)
+        except FwError:
+            raise
+        except json.decoder.JSONDecodeError as err:
+            raise FwParsingError("resp.json", str(err))
+        except Exception as err:
+            raise FwNetworkError(err)
 
     class Merchant:
         def __init__(self, client: "FwClient", token: str) -> None:
@@ -77,7 +116,7 @@ class FwClient:
             return FwClient.Shop(self, shop_id)
 
         async def get_shops(
-            self, status: FwShopStatus, page=0, limit=50, *,
+            self, status=FwShopStatus.ACTIVE, page=0, limit=50, *,
             shop_ids: list[int] | None = None,
         ) -> FwPage[FwShop]:
             """
@@ -98,8 +137,9 @@ class FwClient:
             :return: A page of requested shops
             :rtype: FwPage[FwShop]
             :raises FwValidationError:
-            :raises FwBadResponseStatusError:
             :raises FwParsingError:
+            :raises FwNetworkError:
+            :raises FwBadResponseStatusError:
             :raises FwError:
             """
             url = f"https://{self._c._domain}/apiseller/shops"
@@ -111,9 +151,7 @@ class FwClient:
             if shop_ids is not None:
                 body["shopIds"] = validate_query_list("shop_ids", shop_ids, is_int32_id_valid)
             headers = _authorize(self._token, {})
-            async with self._c._http.post(url, headers=headers, json=body) as resp:
-                _check_response_status(resp.status)
-                content = await resp.json()
+            content = await self._c._request("post", url, headers=headers, json=body)
             return FwPage(content, "shops", FwShop)
 
     class Shop:
@@ -156,8 +194,9 @@ class FwClient:
             :return: A page of requested products
             :rtype: FwPage[FwProduct]
             :raises FwValidationError:
-            :raises FwBadResponseStatusError:
             :raises FwParsingError:
+            :raises FwNetworkError:
+            :raises FwBadResponseStatusError:
             :raises FwError:
             """
             url = f"https://{self._m._c._domain}/apiseller/products?shopId={self._shop_id}"
@@ -174,9 +213,7 @@ class FwClient:
             if type is not None:
                 body["type"] = validate("type", type, is_product_type_valid)
             headers = _authorize(self._m._token, {})
-            async with self._m._c._http.post(url, headers=headers, json=body) as resp:
-                _check_response_status(resp.status)
-                content = await resp.json()
+            content = await self._m._c._request("post", url, headers=headers, json=body)
             return FwPage(content, "items", FwProduct)
 
         async def map_offers(self, mappings: Iterable[FwOfferMapping]) -> list[FwOfferMappingRespErr]:
@@ -190,16 +227,15 @@ class FwClient:
             :type offer_ids: Iterable[FwOfferMapping]
             :return: A list of partial errors
             :rtype: list[FwOfferMappingRespErr]
-            :raises FwBadResponseStatusError:
             :raises FwParsingError:
+            :raises FwNetworkError:
+            :raises FwBadResponseStatusError:
             :raises FwError:
             """
             url = f"https://{self._m._c._domain}/apiseller/products/offersMappings?shopId={self._shop_id}"
             body = {"offers": [m.to_json() for m in mappings]}
             headers = _authorize(self._m._token, {})
-            async with self._m._c._http.post(url, headers=headers, json=body) as resp:
-                _check_response_status(resp.status)
-                content = await resp.json()
+            content = await self._m._c._request("post", url, headers=headers, json=body)
             return _parse_ok_response_error_list(content, FwOfferMappingRespErr)
 
         async def set_product_active(self, offer_ids: Iterable[str], active: bool) -> list[FwProductActiveRespErr]:
@@ -218,17 +254,16 @@ class FwClient:
             :return: A list of partial errors
             :rtype: list[FwProductActiveRespErr]
             :raises FwValidationError:
-            :raises FwBadResponseStatusError:
             :raises FwParsingError:
+            :raises FwNetworkError:
+            :raises FwBadResponseStatusError:
             :raises FwError:
             """
             action = "unhide" if active else "hide"
             url = f"https://{self._m._c._domain}/apiseller/products/{action}?shopId={self._shop_id}"
             body = {"offers": [{"offerId": validate("offer_ids[i]", o, is_offer_id_valid)} for o in offer_ids]}
             headers = _authorize(self._m._token, {})
-            async with self._m._c._http.post(url, headers=headers, json=body) as resp:
-                _check_response_status(resp.status)
-                content = await resp.json()
+            content = await self._m._c._request("post", url, headers=headers, json=body)
             return _parse_ok_response_error_list(content, FwProductActiveRespErr)
 
         # Stocks
@@ -244,14 +279,13 @@ class FwClient:
             :type changes: Iterable[FwProductStock]
             :return: A list of partial errors
             :rtype: list[FwStockUpdatingRespErr]
-            :raises FwBadResponseStatusError:
             :raises FwParsingError:
+            :raises FwNetworkError:
+            :raises FwBadResponseStatusError:
             :raises FwError:
             """
             url = f"https://{self._m._c._domain}/apiseller/stocks/put?shopId={self._shop_id}"
             body = {"offers": [c.to_json() for c in changes]}
             headers = _authorize(self._m._token, {})
-            async with self._m._c._http.put(url, headers=headers, json=body) as resp:
-                _check_response_status(resp.status)
-                content = await resp.json()
+            content = await self._m._c._request("put", url, headers=headers, json=body)
             return _parse_ok_response_error_list(content, FwStockUpdatingRespErr)

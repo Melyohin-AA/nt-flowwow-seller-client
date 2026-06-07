@@ -8,6 +8,14 @@ class FwError(Exception):
         super().__init__(*args)
 
 
+class FwInitializationError(FwError):
+    """Represents a client initialization error"""
+
+
+class FwFinalizationError(FwError):
+    """Represents a client finalization error"""
+
+
 class FwValidationError(FwError):
     """Represents a user data validation error"""
 
@@ -22,8 +30,12 @@ class FwParsingError(FwError):
         super().__init__(f"Failed to parse {attr}: {issue}")
 
 
+class FwNetworkError(FwError):
+    """Represents a client network error"""
+
+
 class FwBadResponseStatusError(FwError):
-    """Represents a non-200 response error"""
+    """Represents a non-2xx response error"""
 
     def __init__(self, code: int, msg: str) -> None:
         self.__code = code

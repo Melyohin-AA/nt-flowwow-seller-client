@@ -2,8 +2,9 @@ from typing import Any, AsyncGenerator
 import pytest
 import pytest_asyncio
 from aioresponses import aioresponses
-import nt_flowwow_seller_client._reqmodels as _reqmodels
-import nt_flowwow_seller_client._respmodels as _respmodels
+import nt_flowwow_seller_client._errors as errors
+import nt_flowwow_seller_client._reqmodels as reqmodels
+import nt_flowwow_seller_client._respmodels as respmodels
 from nt_flowwow_seller_client._client import FwClient, _authorize, _parse_ok_response_error_list
 import tests.model_utils as model_utils
 
@@ -19,6 +20,18 @@ def verify_request(actual_reqs: list, expected_url: str, expected_body: Any) -> 
     assert actual_kwargs["json"] == expected_body
 
 
+def verify_request_(
+    actual_reqs: dict, expected_method: str, expected_url: str, expected_headers: Any, expected_body: Any,
+) -> None:
+    assert len(actual_reqs) == 1
+    actual_req = next(iter(actual_reqs.items()))
+    assert actual_req[0][0] == expected_method
+    assert str(actual_req[0][1]) == expected_url
+    actual_kwargs = actual_req[1][0].kwargs
+    assert actual_kwargs["headers"] == expected_headers
+    assert actual_kwargs["json"] == expected_body
+
+
 @pytest_asyncio.fixture
 async def client() -> AsyncGenerator[FwClient, Any]:
     client = FwClient()
@@ -29,9 +42,8 @@ async def client() -> AsyncGenerator[FwClient, Any]:
 @pytest.mark.asyncio
 async def test_make_close_client():
     # make
-    DOMAIN = "api.example.com"
-    client = FwClient(DOMAIN)
-    assert client._domain == DOMAIN
+    client = FwClient()
+    assert client._domain == "apis.flowwow.com"
     assert not client._http.closed
     # close
     await client.close()
@@ -79,8 +91,8 @@ def test_authorize(token, headers, expected):
                 ]
             },
             [
-                _respmodels.FwOfferMappingRespErr({"offerId": "1001", "productId": 101001, "message": "nope"}),
-                _respmodels.FwOfferMappingRespErr({"offerId": "1002", "productId": 101002, "message": "nah"}),
+                respmodels.FwOfferMappingRespErr({"offerId": "1001", "productId": 101001, "message": "nope"}),
+                respmodels.FwOfferMappingRespErr({"offerId": "1002", "productId": 101002, "message": "nah"}),
             ]
         ),
         ({"shopId": 1, "summary": {}, "data": [], "errors": []}, []),
@@ -89,8 +101,37 @@ def test_authorize(token, headers, expected):
     ]
 )
 def test_parse_ok_response_error_list(content, expected_errors):
-    actual_errors = _parse_ok_response_error_list(content, _respmodels.FwOfferMappingRespErr)
+    actual_errors = _parse_ok_response_error_list(content, respmodels.FwOfferMappingRespErr)
     model_utils.verify_offer_mapping_errors_equal(expected_errors, actual_errors)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "url, url_ow, headers, body, code, resp_data, expected_content, expected_errt",
+    [
+        ("http://host.name/path?k=v", None, {}, {"a": 1}, 200, '{"b": 2}', {"b": 2}, None),
+        ("https://a.b.c/", None, {"h": "v"}, ["a", "b"], 201, "{", None, errors.FwParsingError),
+        ("https://a.b/", "https://c.d/", {}, [], 202, "{}", None, errors.FwNetworkError),
+        ("http://a.b/c", None, {}, {}, 500, "{}", None, errors.FwUnexpectedResponseStatusError),
+        ("http://a.b/c", None, {}, {}, 401, "{}", None, errors.FwTokenRejectedError),
+        ("http://a.b/c", None, {}, {}, 404, "{}", None, errors.FwNotFoundError),
+        ("http://a.b/c", None, {}, {}, 429, "{}", None, errors.FwTooManyRequestsError),
+    ]
+)
+async def test_request(client: FwClient, url, url_ow, headers, body, code, resp_data, expected_content, expected_errt):
+    try:
+        with aioresponses() as mocked:
+            # mock
+            mocked.patch(url, body=resp_data, status=code)
+            # act
+            actual_content = await client._request("PATCH", url_ow or url, headers=headers, json=body)
+            # assert
+            assert expected_errt is None
+            assert actual_content == expected_content
+            mocked.assert_called_once_with(url_ow or url, method="PATCH", headers=headers, json=body)
+    except errors.FwError as err:
+        assert expected_content is None
+        assert isinstance(err, expected_errt)
 
 
 @pytest.mark.asyncio
@@ -98,12 +139,12 @@ def test_parse_ok_response_error_list(content, expected_errors):
     "status, page, limit, shop_ids, expected_shops, expected_body",
     [
         (
-            _reqmodels.FwShopStatus.ACTIVE, 0, 48, None,
+            reqmodels.FwShopStatus.ACTIVE, 0, 48, None,
             model_utils.make_shop_page({"shops": [], "total": 0}),
-            {"status": _reqmodels.FwShopStatus.ACTIVE.value, "page": 0, "limit": 48}
+            {"status": reqmodels.FwShopStatus.ACTIVE.value, "page": 0, "limit": 48}
         ),
         (
-            _reqmodels.FwShopStatus.DISABLED, 2, 34, None,
+            reqmodels.FwShopStatus.DISABLED, 2, 34, None,
             model_utils.make_shop_page({
                 "shops": [{
                     "shopId": 101,
@@ -115,12 +156,12 @@ def test_parse_ok_response_error_list(content, expected_errors):
                     "workingDays": ["1", "2", "3", "4", "5"]
                 }],
                 "total": 69
-            }), {"status": _reqmodels.FwShopStatus.DISABLED.value, "page": 2, "limit": 34}
+            }), {"status": reqmodels.FwShopStatus.DISABLED.value, "page": 2, "limit": 34}
         ),
         (
-            _reqmodels.FwShopStatus.MODERATION, 1, 2, [1, 2, 3],
+            reqmodels.FwShopStatus.MODERATION, 1, 2, [1, 2, 3],
             model_utils.make_shop_page({"shops": [], "total": 0}),
-            {"status": _reqmodels.FwShopStatus.MODERATION.value, "page": 1, "limit": 2, "shopIds": [1, 2, 3]}
+            {"status": reqmodels.FwShopStatus.MODERATION.value, "page": 1, "limit": 2, "shopIds": [1, 2, 3]}
         ),
     ]
 )
@@ -130,16 +171,15 @@ async def test_get_shops(
     expected_shops, expected_body,
 ):
     URL = "https://apis.flowwow.com/apiseller/shops"
-    actual_reqs = []
     with aioresponses() as mocked:
         # mock
-        mocked.post(URL, payload=expected_shops.raw, callback=lambda url, **kwargs: actual_reqs.append((url, kwargs)))
+        mocked.post(URL, payload=expected_shops.raw)
         # act
         merchant = client.merchant(TOKEN)
         actual_shops = await merchant.get_shops(status, page, limit, shop_ids=shop_ids)
         # assert
         mocked.assert_called_once()
-        verify_request(actual_reqs, URL, expected_body)
+        verify_request_(mocked.requests, "post", URL, _authorize(TOKEN, {}), expected_body)
         model_utils.verify_pages_equal(expected_shops, actual_shops, model_utils.verify_shops_equal)
 
 
@@ -148,7 +188,7 @@ async def test_get_shops(
     "page, limit, ids, category_ids, type, expected_products, expected_body",
     [
         (
-            0, 498, _reqmodels.FwProductIdQueryList([123, 456]), [7, 8], 2,
+            0, 498, reqmodels.FwProductIdQueryList([123, 456]), [7, 8], 2,
             model_utils.make_product_page({"items": [], "total": 0}), {
                 "page": 0, "limit": 498,
                 "productIds": [123, 456],
@@ -157,7 +197,7 @@ async def test_get_shops(
             }
         ),
         (
-            0, 420, _reqmodels.FwOfferIdQueryList(["FLOW-001", "FLOW-002"]), [3], 1,
+            0, 420, reqmodels.FwOfferIdQueryList(["FLOW-001", "FLOW-002"]), [3], 1,
             model_utils.make_product_page({"items": [], "total": 0}), {
                 "page": 0, "limit": 420,
                 "offerIds": ["FLOW-001", "FLOW-002"],
@@ -200,19 +240,15 @@ async def test_get_shops(
 )
 async def test_get_products(client: FwClient, page, limit, ids, category_ids, type, expected_products, expected_body):
     URL = f"https://apis.flowwow.com/apiseller/products?shopId={SHOP_ID}"
-    actual_reqs = []
     with aioresponses() as mocked:
         # mock
-        mocked.post(
-            URL, payload=expected_products.raw,
-            callback=lambda url, **kwargs: actual_reqs.append((url, kwargs)),
-        )
+        mocked.post(URL, payload=expected_products.raw)
         # act
         shop = client.merchant(TOKEN).shop(SHOP_ID)
         actual_products = await shop.get_products(page, limit, ids=ids, category_ids=category_ids, type=type)
         # assert
         mocked.assert_called_once()
-        verify_request(actual_reqs, URL, expected_body)
+        verify_request_(mocked.requests, "post", URL, _authorize(TOKEN, {}), expected_body)
         model_utils.verify_pages_equal(expected_products, actual_products, model_utils.verify_products_equal)
 
 
@@ -221,7 +257,7 @@ async def test_get_products(client: FwClient, page, limit, ids, category_ids, ty
     "mappings, resp_body, expected_body",
     [
         (
-            [_reqmodels.FwOfferMapping(123456, "1098")],
+            [reqmodels.FwOfferMapping(123456, "1098")],
             {
                 "shopId": SHOP_ID,
                 "summary": {
@@ -232,7 +268,7 @@ async def test_get_products(client: FwClient, page, limit, ids, category_ids, ty
             {"offers": [{"offerId": "1098", "productId": 123456}]}
         ),
         (
-            [_reqmodels.FwOfferMapping(83418243, "1099")],
+            [reqmodels.FwOfferMapping(83418243, "1099")],
             {
                 "shopId": SHOP_ID,
                 "summary": {
@@ -251,17 +287,16 @@ async def test_get_products(client: FwClient, page, limit, ids, category_ids, ty
 )
 async def test_map_offers(client: FwClient, mappings, resp_body, expected_body):
     URL = f"https://apis.flowwow.com/apiseller/products/offersMappings?shopId={SHOP_ID}"
-    actual_reqs = []
-    expected_errors = [_respmodels.FwOfferMappingRespErr(err) for err in resp_body["errors"]]
+    expected_errors = [respmodels.FwOfferMappingRespErr(err) for err in resp_body["errors"]]
     with aioresponses() as mocked:
         # mock
-        mocked.post(URL, payload=resp_body, callback=lambda url, **kwargs: actual_reqs.append((url, kwargs)))
+        mocked.post(URL, payload=resp_body)
         # act
         shop = client.merchant(TOKEN).shop(SHOP_ID)
         actual_errors = await shop.map_offers(mappings)
         # assert
         mocked.assert_called_once()
-        verify_request(actual_reqs, URL, expected_body)
+        verify_request_(mocked.requests, "post", URL, _authorize(TOKEN, {}), expected_body)
         model_utils.verify_offer_mapping_errors_equal(expected_errors, actual_errors)
 
 
@@ -319,17 +354,16 @@ async def test_map_offers(client: FwClient, mappings, resp_body, expected_body):
 )
 async def test_set_product_active(client: FwClient, offer_ids, active, action, resp_body, expected_body):
     URL = f"https://apis.flowwow.com/apiseller/products/{action}?shopId={SHOP_ID}"
-    actual_reqs = []
-    expected_errors = [_respmodels.FwProductActiveRespErr(err) for err in resp_body["errors"]]
+    expected_errors = [respmodels.FwProductActiveRespErr(err) for err in resp_body["errors"]]
     with aioresponses() as mocked:
         # mock
-        mocked.post(URL, payload=resp_body, callback=lambda url, **kwargs: actual_reqs.append((url, kwargs)))
+        mocked.post(URL, payload=resp_body)
         # act
         shop = client.merchant(TOKEN).shop(SHOP_ID)
         actual_errors = await shop.set_product_active(offer_ids, active)
         # assert
         mocked.assert_called_once()
-        verify_request(actual_reqs, URL, expected_body)
+        verify_request_(mocked.requests, "post", URL, _authorize(TOKEN, {}), expected_body)
         model_utils.verify_product_activeness_errors_equal(expected_errors, actual_errors)
 
 
@@ -343,12 +377,12 @@ async def test_set_product_active(client: FwClient, offer_ids, active, action, r
             {"offers": []}
         ),
         (
-            [_reqmodels.FwProductStock("1098", 42)],
+            [reqmodels.FwProductStock("1098", 42)],
             {"shopId": SHOP_ID, "errors": []},
             {"offers": [{"offerId": "1098", "stock": 42}]}
         ),
         (
-            [_reqmodels.FwProductStock("1097", 41), _reqmodels.FwProductStock("1099", 43)],
+            [reqmodels.FwProductStock("1097", 41), reqmodels.FwProductStock("1099", 43)],
             {
                 "shopId": SHOP_ID,
                 "errors": [
@@ -377,15 +411,14 @@ async def test_set_product_active(client: FwClient, offer_ids, active, action, r
 )
 async def test_update_stocks(client: FwClient, changes, resp_body, expected_body):
     URL = f"https://apis.flowwow.com/apiseller/stocks/put?shopId={SHOP_ID}"
-    actual_reqs = []
-    expected_errors = [_respmodels.FwStockUpdatingRespErr(err) for err in resp_body["errors"]]
+    expected_errors = [respmodels.FwStockUpdatingRespErr(err) for err in resp_body["errors"]]
     with aioresponses() as mocked:
         # mock
-        mocked.put(URL, payload=resp_body, callback=lambda url, **kwargs: actual_reqs.append((url, kwargs)))
+        mocked.put(URL, payload=resp_body)
         # act
         shop = client.merchant(TOKEN).shop(SHOP_ID)
         actual_errors = await shop.update_stocks(changes)
         # assert
         mocked.assert_called_once()
-        verify_request(actual_reqs, URL, expected_body)
+        verify_request_(mocked.requests, "put", URL, _authorize(TOKEN, {}), expected_body)
         model_utils.verify_stock_updating_errors_equal(expected_errors, actual_errors)
