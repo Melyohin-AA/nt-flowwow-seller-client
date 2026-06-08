@@ -1,5 +1,4 @@
 import aiohttp
-import json
 from typing import Any, Iterable, TypeVar
 from ._errors import (
     make_bad_resp_err_der_from_code,
@@ -7,11 +6,11 @@ from ._errors import (
 )
 from ._reqmodels import FwShopStatus, FwProductIdQueryList, FwOfferIdQueryList, FwOfferMapping, FwProductStock
 from ._respmodels import (
+    _validate_type,
     FwPage, FwShop, FwProduct, FwOfferMappingRespErr, FwProductActiveRespErr, FwStockUpdatingRespErr,
 )
 from ._validation import (
-    validate, validate_query_list,
-    is_token_valid, is_int32_id_valid, is_offer_id_valid,
+    validate, validate_query_list, validate_token, is_int32_id_valid, is_offer_id_valid,
     is_page_valid, is_shop_limit_valid, is_product_limit_valid, is_product_type_valid,
 )
 
@@ -28,11 +27,11 @@ def _check_response_status(code: int) -> None:
 
 TRespErr = TypeVar("TRespErr")
 
-def _parse_ok_response_error_list(content: Any, t: type[TRespErr]) -> list[TRespErr]:
-    if isinstance(content, dict) and (errors := content.get("errors")) and errors:
+def _parse_ok_resp_error_list(content: Any, t: type[TRespErr]) -> list[TRespErr]:
+    if (errors := _validate_type("resp.content", content, dict).get("errors")) and errors:
         return [
             t(err)  # type: ignore[call-arg]
-            for err in errors if isinstance(err, dict)
+            for err in _validate_type("errors", errors, list)
         ]
     return []
 
@@ -84,11 +83,13 @@ class FwClient:
         try:
             async with self._http.request(*args, **kwargs) as resp:
                 _check_response_status(resp.status)
-                return await resp.json(loads=json.loads)
+                return await resp.json()
         except FwError:
             raise
-        except json.decoder.JSONDecodeError as err:
-            raise FwParsingError("resp.json", str(err))
+        except ValueError as err:
+            raise FwParsingError("resp.content", str(err))
+        except aiohttp.ContentTypeError as err:
+            raise FwParsingError("resp.content-type", str(err))
         except Exception as err:
             raise FwNetworkError(err)
 
@@ -96,7 +97,7 @@ class FwClient:
         def __init__(self, client: "FwClient", token: str) -> None:
             """internal"""
             self._c = client
-            self._token = validate("token", token, is_token_valid)
+            self._token = validate_token(token)
 
         @property
         def client(self) -> "FwClient":
@@ -174,7 +175,7 @@ class FwClient:
             self, page=0, limit=1000, *,
             ids: FwProductIdQueryList | FwOfferIdQueryList | None = None,
             category_ids: list[int] | None = None,
-            type: int | None = None,
+            product_type: int | None = None,
         ) -> FwPage[FwProduct]:
             """
             Retrieves paged products of the shop from endpoint
@@ -191,6 +192,8 @@ class FwClient:
             :type ids: FwProductIdQueryList | FwOfferIdQueryList | None
             :param category_ids: Category IDs of products to be requested; list of integers in [1, 2^32-1] range
             :type category_ids: list[int] | None
+            :param product_type: Product Type ID of products to be requested; integer in {1, 2, 3} set
+            :type product_type: int | None
             :return: A page of requested products
             :rtype: FwPage[FwProduct]
             :raises FwValidationError:
@@ -204,14 +207,14 @@ class FwClient:
                 "page": validate("page", page, is_page_valid),
                 "limit": validate("limit", limit, is_product_limit_valid),
             }
-            if isinstance(ids, FwProductIdQueryList):
+            if type(ids) is FwProductIdQueryList:
                 body["productIds"] = ids._product_ids
-            elif isinstance(ids, FwOfferIdQueryList):
+            elif type(ids) is FwOfferIdQueryList:
                 body["offerIds"] = ids._offer_ids
             if category_ids is not None:
                 body["categoryIds"] = validate_query_list("category_ids", category_ids, is_int32_id_valid)
-            if type is not None:
-                body["type"] = validate("type", type, is_product_type_valid)
+            if product_type is not None:
+                body["type"] = validate("type", product_type, is_product_type_valid)
             headers = _authorize(self._m._token, {})
             content = await self._m._c._request("post", url, headers=headers, json=body)
             return FwPage(content, "items", FwProduct)
@@ -236,7 +239,7 @@ class FwClient:
             body = {"offers": [m.to_json() for m in mappings]}
             headers = _authorize(self._m._token, {})
             content = await self._m._c._request("post", url, headers=headers, json=body)
-            return _parse_ok_response_error_list(content, FwOfferMappingRespErr)
+            return _parse_ok_resp_error_list(content, FwOfferMappingRespErr)
 
         async def set_product_active(self, offer_ids: Iterable[str], active: bool) -> list[FwProductActiveRespErr]:
             """
@@ -264,7 +267,7 @@ class FwClient:
             body = {"offers": [{"offerId": validate("offer_ids[i]", o, is_offer_id_valid)} for o in offer_ids]}
             headers = _authorize(self._m._token, {})
             content = await self._m._c._request("post", url, headers=headers, json=body)
-            return _parse_ok_response_error_list(content, FwProductActiveRespErr)
+            return _parse_ok_resp_error_list(content, FwProductActiveRespErr)
 
         # Stocks
 
@@ -288,4 +291,4 @@ class FwClient:
             body = {"offers": [c.to_json() for c in changes]}
             headers = _authorize(self._m._token, {})
             content = await self._m._c._request("put", url, headers=headers, json=body)
-            return _parse_ok_response_error_list(content, FwStockUpdatingRespErr)
+            return _parse_ok_resp_error_list(content, FwStockUpdatingRespErr)

@@ -17,4 +17,4 @@ import nt_flowwow_seller_client._errors as e
 def test_make_bad_resp_err_der_from_code(code, expected_error_type):
     err = e.make_bad_resp_err_der_from_code(code)
     assert err.code == code
-    assert isinstance(err, expected_error_type)
+    assert type(err) is expected_error_type

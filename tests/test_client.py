@@ -5,7 +5,7 @@ from aioresponses import aioresponses
 import nt_flowwow_seller_client._errors as errors
 import nt_flowwow_seller_client._reqmodels as reqmodels
 import nt_flowwow_seller_client._respmodels as respmodels
-from nt_flowwow_seller_client._client import FwClient, _authorize, _parse_ok_response_error_list
+from nt_flowwow_seller_client._client import FwClient, _authorize, _parse_ok_resp_error_list
 import tests.model_utils as model_utils
 
 
@@ -80,7 +80,7 @@ def test_authorize(token, headers, expected):
 
 
 @pytest.mark.parametrize(
-    "content, expected_errors",
+    "content, expected_errors, expect_exception",
     [
         (
             {
@@ -93,36 +93,44 @@ def test_authorize(token, headers, expected):
             [
                 respmodels.FwOfferMappingRespErr({"offerId": "1001", "productId": 101001, "message": "nope"}),
                 respmodels.FwOfferMappingRespErr({"offerId": "1002", "productId": 101002, "message": "nah"}),
-            ]
+            ],
+            False
         ),
-        ({"shopId": 1, "summary": {}, "data": [], "errors": []}, []),
-        ({"shopId": 1, "summary": {}, "data": []}, []),
-        ("try get errors from this", []),
+        ({"shopId": 1, "summary": {}, "data": [], "errors": []}, [], False),
+        ({"shopId": 1, "summary": {}, "data": []}, [], False),
+        ("try get errors from this", [], True),
     ]
 )
-def test_parse_ok_response_error_list(content, expected_errors):
-    actual_errors = _parse_ok_response_error_list(content, respmodels.FwOfferMappingRespErr)
-    model_utils.verify_offer_mapping_errors_equal(expected_errors, actual_errors)
+def test_parse_ok_response_error_list(content, expected_errors, expect_exception):
+    try:
+        actual_errors = _parse_ok_resp_error_list(content, respmodels.FwOfferMappingRespErr)
+        model_utils.verify_offer_mapping_errors_equal(expected_errors, actual_errors)
+        assert not expect_exception
+    except errors.FwParsingError:
+        assert expect_exception
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "url, url_ow, headers, body, code, resp_data, expected_content, expected_errt",
+    "url, url_ow, headers, body, code, resp_headers, resp_data, expected_content, expected_errt",
     [
-        ("http://host.name/path?k=v", None, {}, {"a": 1}, 200, '{"b": 2}', {"b": 2}, None),
-        ("https://a.b.c/", None, {"h": "v"}, ["a", "b"], 201, "{", None, errors.FwParsingError),
-        ("https://a.b/", "https://c.d/", {}, [], 202, "{}", None, errors.FwNetworkError),
-        ("http://a.b/c", None, {}, {}, 500, "{}", None, errors.FwUnexpectedResponseStatusError),
-        ("http://a.b/c", None, {}, {}, 401, "{}", None, errors.FwTokenRejectedError),
-        ("http://a.b/c", None, {}, {}, 404, "{}", None, errors.FwNotFoundError),
-        ("http://a.b/c", None, {}, {}, 429, "{}", None, errors.FwTooManyRequestsError),
+        ("http://host.name/path?k=v", None, {}, {"a": 1}, 200, {}, '{"b": 2}', {"b": 2}, None),
+        ("https://a.b.c/", None, {"h": "v"}, ["a", "b"], 201, {}, "{", None, errors.FwParsingError),
+        ("https://a.b/", None, {}, [], 201, {"content-type": "text/html"}, "", None, errors.FwParsingError),
+        ("https://a.b/", "https://c.d/", {}, [], 202, {}, "{}", None, errors.FwNetworkError),
+        ("http://a.b/c", None, {}, {}, 500, {}, "{}", None, errors.FwUnexpectedResponseStatusError),
+        ("http://a.b/c", None, {}, {}, 401, {}, "{}", None, errors.FwTokenRejectedError),
+        ("http://a.b/c", None, {}, {}, 404, {}, "{}", None, errors.FwNotFoundError),
+        ("http://a.b/c", None, {}, {}, 429, {}, "{}", None, errors.FwTooManyRequestsError),
     ]
 )
-async def test_request(client: FwClient, url, url_ow, headers, body, code, resp_data, expected_content, expected_errt):
+async def test_request(
+    client: FwClient, url, url_ow, headers, body, code, resp_headers, resp_data, expected_content, expected_errt
+):
     try:
         with aioresponses() as mocked:
             # mock
-            mocked.patch(url, body=resp_data, status=code)
+            mocked.patch(url, headers=resp_headers, body=resp_data, status=code)
             # act
             actual_content = await client._request("PATCH", url_ow or url, headers=headers, json=body)
             # assert
@@ -131,7 +139,7 @@ async def test_request(client: FwClient, url, url_ow, headers, body, code, resp_
             mocked.assert_called_once_with(url_ow or url, method="PATCH", headers=headers, json=body)
     except errors.FwError as err:
         assert expected_content is None
-        assert isinstance(err, expected_errt)
+        assert type(err) is expected_errt
 
 
 @pytest.mark.asyncio
@@ -185,7 +193,7 @@ async def test_get_shops(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "page, limit, ids, category_ids, type, expected_products, expected_body",
+    "page, limit, ids, category_ids, product_type, expected_products, expected_body",
     [
         (
             0, 498, reqmodels.FwProductIdQueryList([123, 456]), [7, 8], 2,
@@ -238,14 +246,18 @@ async def test_get_shops(
         ),
     ]
 )
-async def test_get_products(client: FwClient, page, limit, ids, category_ids, type, expected_products, expected_body):
+async def test_get_products(
+    client: FwClient, page, limit, ids, category_ids, product_type, expected_products, expected_body
+):
     URL = f"https://apis.flowwow.com/apiseller/products?shopId={SHOP_ID}"
     with aioresponses() as mocked:
         # mock
         mocked.post(URL, payload=expected_products.raw)
         # act
         shop = client.merchant(TOKEN).shop(SHOP_ID)
-        actual_products = await shop.get_products(page, limit, ids=ids, category_ids=category_ids, type=type)
+        actual_products = await shop.get_products(
+            page, limit, ids=ids, category_ids=category_ids, product_type=product_type,
+        )
         # assert
         mocked.assert_called_once()
         verify_request_(mocked.requests, "post", URL, _authorize(TOKEN, {}), expected_body)

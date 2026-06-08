@@ -1,8 +1,10 @@
 # Python Client for Flowwow Seller API
 
-This is an **inofficial** asynchronous Python client for [Flowwow Seller API](https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1).
+This is an **inofficial** tiny and simple client for [Flowwow Seller API](https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1).
 
-Requires Python 3.10 or higher.
+Limitations:
+* Python version >= 3.10
+* Async only
 
 Currently supported endpoints:
 * `/apiseller/shops`

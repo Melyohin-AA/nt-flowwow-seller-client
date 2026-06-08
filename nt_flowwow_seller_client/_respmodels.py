@@ -6,7 +6,7 @@ T = TypeVar("T")
 
 
 def _validate_type(name, value: Any, t: type[T]) -> T:
-    if isinstance(value, t):
+    if type(value) is t:
         return value
     raise FwParsingError(name, f"expected {value} to be of type {t} but was of type {type(value)}")
 

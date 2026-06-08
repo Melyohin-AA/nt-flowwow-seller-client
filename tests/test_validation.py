@@ -50,6 +50,24 @@ def test_validate_query_list(name, query_list, is_valid):
 
 
 @pytest.mark.parametrize(
+    "token, expected_err_repr",
+    [
+        ("token", None),
+        ("", "<empty>"),
+        ("ab" * 2048, "abab<...>abababab"),
+        (123, "123"),
+    ]
+)
+def test_validate_token(token, expected_err_repr):
+    try:
+        assert v.validate_token(token) == token
+        assert expected_err_repr is None
+    except FwValidationError as err:
+        assert expected_err_repr is not None
+        assert expected_err_repr in str(err)
+
+
+@pytest.mark.parametrize(
     "token, is_valid",
     [
         ("a", True), ("a" * 4095, True),
@@ -65,6 +83,7 @@ def test_is_token_valid(token, is_valid):
     [
         (1, True), ((1 << 32) - 1, True),
         (0, False), (1 << 32, False),
+        ("1", False), (True, False),
     ]
 )
 def test_is_int32_id_valid(id, is_valid):
@@ -87,6 +106,7 @@ def test_is_offer_id_valid(offer_id, is_valid):
     [
         (0, True), ((1 << 32) - 1, True),
         (-1, False), (1 << 32, False),
+        ("1", False), (True, False),
     ]
 )
 def test_is_stock_valid(stock, is_valid):
@@ -96,9 +116,8 @@ def test_is_stock_valid(stock, is_valid):
 @pytest.mark.parametrize(
     "page, is_valid",
     [
-        (123, True),
-        (0, True),
-        (-1, False),
+        (123, True), (0, True), (-1, False),
+        ("1", False), (True, False),
     ]
 )
 def test_is_page_valid(page, is_valid):
@@ -110,6 +129,7 @@ def test_is_page_valid(page, is_valid):
     [
         (1, True), (50, True),
         (0, False), (51, False),
+        ("1", False), (True, False),
     ]
 )
 def test_is_shop_limit_valid(limit, is_valid):
@@ -121,6 +141,7 @@ def test_is_shop_limit_valid(limit, is_valid):
     [
         (1, True), (1000, True),
         (0, False), (1001, False),
+        ("1", False), (True, False),
     ]
 )
 def test_is_product_limit_valid(limit, is_valid):
@@ -133,6 +154,7 @@ def test_is_product_limit_valid(limit, is_valid):
         (1, True), (2, True), (3, True),
         (0, False), (4, False),
         (0.99, False), (3.01, False), (2.5, False),
+        ("1", False), (True, False),
     ]
 )
 def test_is_product_type_valid(type, is_valid):
