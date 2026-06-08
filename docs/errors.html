@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Errors &#8212; nt-flowwow-seller-client  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Request Models" href="reqmodels.html" />
+    <link rel="prev" title="Client" href="client.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="errors">
+<h1>Errors<a class="headerlink" href="#errors" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwError</span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwError" title="Link to this definition">¶</a></dt>
+<dd><p>Base error type of the package</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwInitializationError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwInitializationError</span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwInitializationError" title="Link to this definition">¶</a></dt>
+<dd><p>Represents a client initialization error</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwFinalizationError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwFinalizationError</span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwFinalizationError" title="Link to this definition">¶</a></dt>
+<dd><p>Represents a client finalization error</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwValidationError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwValidationError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nt_flowwow_seller_client.FwValidationError" title="Link to this definition">¶</a></dt>
+<dd><p>Represents a user data validation error</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwParsingError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwParsingError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">issue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nt_flowwow_seller_client.FwParsingError" title="Link to this definition">¶</a></dt>
+<dd><p>Represents a response parsing error</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwNetworkError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwNetworkError</span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwNetworkError" title="Link to this definition">¶</a></dt>
+<dd><p>Represents a client network error</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwBadResponseStatusError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwBadResponseStatusError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nt_flowwow_seller_client.FwBadResponseStatusError" title="Link to this definition">¶</a></dt>
+<dd><p>Represents a non-2xx response error</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwBadResponseStatusError.code">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">code</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwBadResponseStatusError.code" title="Link to this definition">¶</a></dt>
+<dd><p>Response status code</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwUnexpectedResponseStatusError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwUnexpectedResponseStatusError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nt_flowwow_seller_client.FwUnexpectedResponseStatusError" title="Link to this definition">¶</a></dt>
+<dd><p>Represents an unexpected response error</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwTokenRejectedError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwTokenRejectedError</span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwTokenRejectedError" title="Link to this definition">¶</a></dt>
+<dd><p>Represents an authorization error. Corresponds to response 401</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwNotFoundError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwNotFoundError</span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwNotFoundError" title="Link to this definition">¶</a></dt>
+<dd><p>Represents a resource not found error. Corresponds to response 404</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwTooManyRequestsError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FwTooManyRequestsError</span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwTooManyRequestsError" title="Link to this definition">¶</a></dt>
+<dd><p>Represents a too many requests error. Corresponds to response 429</p>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">nt-flowwow-seller-client</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="client.html">Client</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Errors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reqmodels.html">Request Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respmodels.html">Response Models</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="client.html" title="previous chapter">Client</a></li>
+      <li>Next: <a href="reqmodels.html" title="next chapter">Request Models</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Artem Melekhin.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/errors.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

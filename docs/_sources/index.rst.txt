@@ -1,12 +1,10 @@
-nt-flowwow-seller-client documentation
-======================================
+Index
+=====
 
-.. autoclass:: nt_flowwow_seller_client::FwClient
-   :special-members: __init__
-   :members:
+.. toctree::
+   :maxdepth: 1
 
-.. autoclass:: nt_flowwow_seller_client::FwClient.Merchant
-   :members:
-
-.. autoclass:: nt_flowwow_seller_client::FwClient.Shop
-   :members:
+   client
+   errors
+   reqmodels
+   respmodels

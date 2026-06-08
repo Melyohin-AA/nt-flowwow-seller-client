@@ -4,9 +4,6 @@ from typing import Any
 class FwError(Exception):
     """Base error type of the package"""
 
-    def __init__(self, *args) -> None:
-        super().__init__(*args)
-
 
 class FwInitializationError(FwError):
     """Represents a client initialization error"""
