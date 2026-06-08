@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>nt-flowwow-seller-client documentation &#8212; nt-flowwow-seller-client  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="nt-flowwow-seller-client-documentation">
+<h1>nt-flowwow-seller-client documentation<a class="headerlink" href="#nt-flowwow-seller-client-documentation" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nt_flowwow_seller_client.</span></span><span class="sig-name descname"><span class="pre">FwClient</span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Intializes an instance and allocates resources for it.</p>
+<p>Note: Requires a running event loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>FwInitializationError</strong> – </p></li>
+<li><p><strong>FwError</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.close">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.close" title="Link to this definition">¶</a></dt>
+<dd><p>Finalizes an instance releasing its resources.</p>
+<p>Note: An object and its child objects must not be used after calling this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>FwFinalizationError</strong> – </p></li>
+<li><p><strong>FwError</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.merchant">
+<span class="sig-name descname"><span class="pre">merchant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#nt_flowwow_seller_client.FwClient.Merchant" title="nt_flowwow_seller_client._client.FwClient.Merchant"><span class="pre">Merchant</span></a></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.merchant" title="Link to this definition">¶</a></dt>
+<dd><p>Makes a child object for a merchant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>token</strong> (<em>str</em>) – Merchant’s bearer token; non-empty string limited to 4095 chars</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new merchant child object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#nt_flowwow_seller_client.FwClient.Merchant" title="nt_flowwow_seller_client.FwClient.Merchant">FwClient.Merchant</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FwValidationError</strong> – </p></li>
+<li><p><strong>FwError</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.Merchant">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">FwClient.</span></span><span class="sig-name descname"><span class="pre">Merchant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#nt_flowwow_seller_client.FwClient" title="nt_flowwow_seller_client._client.FwClient"><span class="pre">FwClient</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.Merchant" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.Merchant.get_shops">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_shops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">FwShopStatus.ACTIVE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">shop_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FwPage</span><span class="p"><span class="pre">[</span></span><span class="pre">FwShop</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.Merchant.get_shops" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves paged shops of the merchant from endpoint
+[<cite>/apiseller/shops</cite>](<a class="reference external" href="https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#post-apiseller-shops">https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#post-apiseller-shops</a>).</p>
+<p>Note: The endpoint does not take empty id lists into account,
+so passing empty <cite>shop_ids</cite> will be equal to not specifying it at all.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>FwShopStatus</em>) – Status of shops to be requested</p></li>
+<li><p><strong>page</strong> (<em>int</em>) – Number of page to be requested; non-negative integer</p></li>
+<li><p><strong>limit</strong> (<em>int</em>) – Max page size; integer in [1, 50] range</p></li>
+<li><p><strong>shop_ids</strong> (<em>list</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – IDs of shops to be requested; list of integers in [1, 2^32-1] range</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A page of requested shops</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FwPage[FwShop]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FwValidationError</strong> – </p></li>
+<li><p><strong>FwParsingError</strong> – </p></li>
+<li><p><strong>FwNetworkError</strong> – </p></li>
+<li><p><strong>FwBadResponseStatusError</strong> – </p></li>
+<li><p><strong>FwError</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.Merchant.shop">
+<span class="sig-name descname"><span class="pre">shop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shop_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#nt_flowwow_seller_client.FwClient.Shop" title="nt_flowwow_seller_client._client.FwClient.Shop"><span class="pre">Shop</span></a></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.Merchant.shop" title="Link to this definition">¶</a></dt>
+<dd><p>Makes a child object for a shop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>shop_id</strong> (<em>int</em>) – Shop ID; integer in [1, 2^32-1] range</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new shop child object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#nt_flowwow_seller_client.FwClient.Shop" title="nt_flowwow_seller_client.FwClient.Shop">FwClient.Shop</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FwValidationError</strong> – </p></li>
+<li><p><strong>FwError</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.Shop">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">FwClient.</span></span><span class="sig-name descname"><span class="pre">Shop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">merchant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#nt_flowwow_seller_client.FwClient.Merchant" title="nt_flowwow_seller_client._client.FwClient.Merchant"><span class="pre">Merchant</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">shop_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.Shop" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.Shop.get_products">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_products</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FwProductIdQueryList</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">FwOfferIdQueryList</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FwPage</span><span class="p"><span class="pre">[</span></span><span class="pre">FwProduct</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.Shop.get_products" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieves paged products of the shop from endpoint
+[<cite>/apiseller/products</cite>](<a class="reference external" href="https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#post-apiseller-products">https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#post-apiseller-products</a>).</p>
+<p>Note: The endpoint does not take empty id lists into account,
+so passing empty <cite>ids</cite> or <cite>category_ids</cite> will be equal to not specifying them at all.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>page</strong> (<em>int</em>) – Number of page to be requested; non-negative integer</p></li>
+<li><p><strong>limit</strong> (<em>int</em>) – Max page size; integer in [1, 1000] range</p></li>
+<li><p><strong>ids</strong> (<em>FwProductIdQueryList</em><em> | </em><em>FwOfferIdQueryList</em><em> | </em><em>None</em>) – Product/Offer IDs of products to be requested</p></li>
+<li><p><strong>category_ids</strong> (<em>list</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – Category IDs of products to be requested; list of integers in [1, 2^32-1] range</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A page of requested products</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FwPage[FwProduct]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FwValidationError</strong> – </p></li>
+<li><p><strong>FwParsingError</strong> – </p></li>
+<li><p><strong>FwNetworkError</strong> – </p></li>
+<li><p><strong>FwBadResponseStatusError</strong> – </p></li>
+<li><p><strong>FwError</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.Shop.map_offers">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">map_offers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mappings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">FwOfferMapping</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">FwOfferMappingRespErr</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.Shop.map_offers" title="Link to this definition">¶</a></dt>
+<dd><p>Maps specified external offer IDs with corresponding products via endpoint
+[<cite>/apiseller/products/offersMappings</cite>](<a class="reference external" href="https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#post-apiseller-products-offersmappings">https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#post-apiseller-products-offersmappings</a>).</p>
+<p>Requested changes may be applied partially. In that case, a list of errors will be returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>offer_ids</strong> (<em>Iterable</em><em>[</em><em>FwOfferMapping</em><em>]</em>) – Offer ID to product ID mappings</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of partial errors</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[FwOfferMappingRespErr]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FwParsingError</strong> – </p></li>
+<li><p><strong>FwNetworkError</strong> – </p></li>
+<li><p><strong>FwBadResponseStatusError</strong> – </p></li>
+<li><p><strong>FwError</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.Shop.set_product_active">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">set_product_active</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offer_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">FwProductActiveRespErr</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.Shop.set_product_active" title="Link to this definition">¶</a></dt>
+<dd><p>Hides or unhides specified products via either endpoint
+[<cite>/apiseller/products/hide</cite>](<a class="reference external" href="https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#post-apiseller-products-hide">https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#post-apiseller-products-hide</a>)
+or
+[<cite>/apiseller/products/unhide</cite>](<a class="reference external" href="https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#post-apiseller-products-unhide">https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#post-apiseller-products-unhide</a>).</p>
+<p>Requested changes may be applied partially. In that case, a list of errors will be returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>offer_ids</strong> (<em>Iterable</em><em>[</em><em>str</em><em>]</em>) – Offer IDs of products to be hid/unhid; non-empty strings limited to 50 chars</p></li>
+<li><p><strong>active</strong> (<em>bool</em>) – <cite>False</cite> to hide, <cite>True</cite> to unhide</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of partial errors</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[FwProductActiveRespErr]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FwValidationError</strong> – </p></li>
+<li><p><strong>FwParsingError</strong> – </p></li>
+<li><p><strong>FwNetworkError</strong> – </p></li>
+<li><p><strong>FwBadResponseStatusError</strong> – </p></li>
+<li><p><strong>FwError</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwClient.Shop.update_stocks">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">update_stocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">changes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">FwProductStock</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">FwStockUpdatingRespErr</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwClient.Shop.update_stocks" title="Link to this definition">¶</a></dt>
+<dd><p>Updates stock quantities of specified products via endpoint
+[<cite>/apiseller/stocks/put</cite>](<a class="reference external" href="https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#put-apiseller-stocks-put">https://seller-docs.flowwow.com/4.-instrumenty-prodavca/4.1.-integracii-i-api/dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#put-apiseller-stocks-put</a>).</p>
+<p>Requested changes may be applied partially. In that case, a list of errors will be returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>changes</strong> (<em>Iterable</em><em>[</em><em>FwProductStock</em><em>]</em>) – Changes in product stocks to be pushed</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of partial errors</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[FwStockUpdatingRespErr]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FwParsingError</strong> – </p></li>
+<li><p><strong>FwNetworkError</strong> – </p></li>
+<li><p><strong>FwBadResponseStatusError</strong> – </p></li>
+<li><p><strong>FwError</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">nt-flowwow-seller-client</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Artem Melekhin.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
