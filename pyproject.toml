@@ -23,5 +23,10 @@ Issues = "https://github.com/Melyohin-AA/nt-flowwow-seller-client/issues"
 requires = ["setuptools == 82.0.1"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nt_flowwow_seller_client"]
+exclude = ["sphinx"]
+
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
