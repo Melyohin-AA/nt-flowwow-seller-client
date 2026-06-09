@@ -127,7 +127,18 @@ class FwProduct:
 # Partial errors
 
 class FwFlatProductRespErr:
-    """Base flat partial product related error"""
+    """
+    Base flat partial product-related error.
+
+    :param raw: Raw JSON-compatible value
+    :type raw: dict[str, Any]
+    :param offer_id: Product's offer ID
+    :type offer_id: str | None
+    :param product_id: Product ID
+    :type product_id: int | None
+    :param message: Error message
+    :type message: str
+    """
 
     def __init__(self, raw: dict[str, Any]) -> None:
         self.raw = raw
@@ -139,11 +150,14 @@ class FwFlatProductRespErr:
 class FwOfferMappingRespErr(FwFlatProductRespErr):
     """Partial product related error of offer mapping"""
 
-    pass
-
 
 class FwProductActiveRespErr(FwFlatProductRespErr):
-    """Partial product related error of product activeness setting"""
+    """
+    Partial product related error of product activeness setting.
+
+    :param is_active: Whether the product is active
+    :type is_active: bool | None
+    """
 
     def __init__(self, raw: dict[str, Any]) -> None:
         super().__init__(raw)
@@ -151,7 +165,12 @@ class FwProductActiveRespErr(FwFlatProductRespErr):
 
 
 class FwStockUpdatingRespErr(FwFlatProductRespErr):
-    """Partial product related error of stock updating"""
+    """
+    Partial product related error of stock updating.
+
+    :param stock: Product's quantity in stock
+    :type stock: int
+    """
 
     def __init__(self, raw: dict[str, Any]) -> None:
         super().__init__(raw)

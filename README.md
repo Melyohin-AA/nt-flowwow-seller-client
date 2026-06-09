@@ -21,6 +21,10 @@ This project follows [SemVer](https://semver.org/) versioning scheme.
 pip install nt-flowwow-seller-client
 ```
 
+## Reference
+
+[Latest reference](https://melyohin-aa.github.io/nt-flowwow-seller-client/index.html)
+
 ## Usage
 
 ### Initialization and Finalization

@@ -1,6 +1,6 @@
 [project]
 name = "nt-flowwow-seller-client"
-version = "0.0.1"
+version = "0.1.0"
 authors = [
 	{ name="Melyohin-AA", email="melyohin.aa@gmail.com" },
 ]
