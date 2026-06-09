@@ -1,9 +1,9 @@
 from typing import Any
-from enum import StrEnum
+from enum import Enum
 from ._validation import validate, validate_query_list, is_int32_id_valid, is_offer_id_valid, is_stock_valid
 
 
-class FwShopStatus(StrEnum):
+class FwShopStatus(Enum):
     ACTIVE = "active"
     MODERATION = "moderation"
     DISABLED = "disabled"

@@ -1,4 +1,4 @@
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Generic
 from ._errors import FwParsingError
 
 
@@ -33,7 +33,7 @@ def _empty_str_as_none(s: str | None) -> str | None:
 
 TPageItem = TypeVar("TPageItem")
 
-class FwPage[TPageItem]:
+class FwPage(Generic[TPageItem]):
     """
     Represents a paged response result.
 
