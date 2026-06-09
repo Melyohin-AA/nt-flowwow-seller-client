@@ -15,3 +15,4 @@ Generate docs (Windows):
 3. `move sphinx\build\html docs`
 
 Build: `python -m build`
+Upload: `python -m twine upload dist/*`
