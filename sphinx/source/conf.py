@@ -34,3 +34,13 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path('..', '..').resolve()))
+
+
+# Disabling Jekyll because it ignores '_sources' and '_static' as they start with '_'
+
+def create_nojekyll(app, exception):
+    if exception is None:
+        Path(app.outdir, ".nojekyll").touch()
+
+def setup(app):
+    app.connect("build-finished", create_nojekyll)
