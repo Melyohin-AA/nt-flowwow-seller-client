@@ -203,7 +203,7 @@ class FwClient:
             :raises FwError:
             """
             url = f"https://{self._m._c._domain}/apiseller/products?shopId={self._shop_id}"
-            body = {
+            body: dict[str, Any] = {
                 "page": validate("page", page, is_page_valid),
                 "limit": validate("limit", limit, is_product_limit_valid),
             }
