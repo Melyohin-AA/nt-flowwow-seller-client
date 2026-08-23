@@ -12,7 +12,7 @@ class FwShopStatus(Enum):
 class FwProductIdQueryList:
     def __init__(self, product_ids: list[int]) -> None:
         """
-        :param product_ids: Product IDs of products to be requested; list of integers in [1, 2^32-1] range
+        :param product_ids: Product IDs of products to be requested; list of integers in [1, 2^32) range
         :type product_ids: list[int]
         :raises FwValidationError:
         :raises FwError:
@@ -34,7 +34,7 @@ class FwOfferIdQueryList:
 class FwOfferMapping:
     def __init__(self, product_id: int, offer_id: str) -> None:
         """
-        :param product_id: Product ID of a product; integer in [1, 2^32-1] range
+        :param product_id: Product ID of a product; integer in [1, 2^32) range
         :type product_id: int
         :param offer_id: Offer ID of a product; non-empty string limited to 50 chars
         :type offer_id: str
@@ -56,7 +56,7 @@ class FwProductStock:
         """
         :param offer_id: Offer ID of a product; non-empty string limited to 50 chars
         :type offer_id: str
-        :param stock: Stock quantity of a product; integer in [0, 2^32-1] range
+        :param stock: Stock quantity of a product; integer in [0, 2^32) range
         :type stock: int
         :raises FwValidationError:
         :raises FwError:

@@ -1,4 +1,5 @@
 import aiohttp
+import datetime
 from typing import Any, Iterable, TypeVar
 from ._errors import (
     make_bad_resp_err_der_from_code,
@@ -7,11 +8,12 @@ from ._errors import (
 from ._reqmodels import FwShopStatus, FwProductIdQueryList, FwOfferIdQueryList, FwOfferMapping, FwProductStock
 from ._respmodels import (
     _validate_type,
-    FwPage, FwShop, FwProduct, FwOfferMappingRespErr, FwProductActiveRespErr, FwStockUpdatingRespErr,
+    FwPage, FwShop, FwProduct, FwOrder, FwOfferMappingRespErr, FwProductActiveRespErr, FwStockUpdatingRespErr,
 )
 from ._validation import (
     validate, validate_query_list, validate_token, is_int32_id_valid, is_offer_id_valid,
-    is_page_valid, is_shop_limit_valid, is_product_limit_valid, is_product_type_valid,
+    is_page_valid, is_shop_limit_valid, is_product_limit_valid, is_order_limit_valid, is_product_type_valid,
+    is_order_delivery_type_valid, is_order_status_valid, is_order_delivery_time_type_valid,
 )
 
 
@@ -107,7 +109,7 @@ class FwClient:
             """
             Makes a child object for a shop.
 
-            :param shop_id: Shop ID; integer in [1, 2^32-1] range
+            :param shop_id: Shop ID; integer in [1, 2^32) range
             :type shop_id: int
             :return: A new shop child object
             :rtype: FwClient.Shop
@@ -133,7 +135,7 @@ class FwClient:
             :type page: int
             :param limit: Max page size; integer in [1, 50] range
             :type limit: int
-            :param shop_ids: IDs of shops to be requested; list of integers in [1, 2^32-1] range
+            :param shop_ids: IDs of shops to be requested; list of integers in [1, 2^32) range
             :type shop_ids: list[int] | None
             :return: A page of requested shops
             :rtype: FwPage[FwShop]
@@ -190,7 +192,7 @@ class FwClient:
             :type limit: int
             :param ids: Product/Offer IDs of products to be requested
             :type ids: FwProductIdQueryList | FwOfferIdQueryList | None
-            :param category_ids: Category IDs of products to be requested; list of integers in [1, 2^32-1] range
+            :param category_ids: Category IDs of products to be requested; list of integers in [1, 2^32) range
             :type category_ids: list[int] | None
             :param product_type: Product Type ID of products to be requested; integer in {1, 2, 3} set
             :type product_type: int | None
@@ -292,3 +294,92 @@ class FwClient:
             headers = _authorize(self._m._token, {})
             content = await self._m._c._request("put", url, headers=headers, json=body)
             return _parse_ok_resp_error_list(content, FwStockUpdatingRespErr)
+
+        # Orders
+
+        async def get_order(self, order_id: int) -> FwOrder:
+            """
+            Retrieves an order via endpoint
+            [`/apiseller/orders/view`](https://seller-docs.flowwow.com/5.-instrumenty-prodavca/5.1-dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#get-apiseller-orders-view).
+
+            :param order_id: ID of the requested order; integer in [1, 2^32) range
+            :type order_id: int
+            :return: Order
+            :rtype: FwOrder
+            :raises FwValidationError:
+            :raises FwParsingError:
+            :raises FwNetworkError:
+            :raises FwBadResponseStatusError:
+            :raises FwError:
+            """
+            validate("orderId", order_id, is_int32_id_valid)
+            url = f"https://{self._m._c._domain}/apiseller/orders/view?shopId={self._shop_id}&orderId={order_id}"
+            headers = _authorize(self._m._token, {})
+            content = await self._m._c._request("get", url, headers=headers)
+            return FwOrder(content)
+
+        async def get_orders(
+            self, page=0, limit=100, *,
+            order_id: int | None = None,
+            created_date: datetime.date | None = None,
+            delivery_date_from: datetime.date | None = None,
+            delivery_date_to: datetime.date | None = None,
+            delivery_type: int | None = None,
+            status: int | None = None,
+            delivery_time_type: int | None = None,
+        ) -> FwPage[FwOrder]:
+            """
+            Retrieves paged orders of the shop from endpoint
+            [`/apiseller/orders/list`](https://seller-docs.flowwow.com/5.-instrumenty-prodavca/5.1-dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#get-apiseller-orders-list).
+
+            :param page: Number of page to be requested; non-negative integer
+            :type page: int
+            :param limit: Max page size; integer in [1, 100] range
+            :type limit: int
+            :param order_id: Order ID; integer in [1, 2^32) range
+            :type order_id: int | None
+            :param created_date: Order's creation date
+            :type created_date: datetime.date | None
+            :param delivery_date_from: Order's delivery date from
+            :type delivery_date_from: datetime.date | None
+            :param delivery_date_to: Order's delivery date to
+            :type delivery_date_to: datetime.date | None
+            :param delivery_type: Order Delivery Type ID; integer in {0-2, 4, 5, 10-12, 20-24, 26, 32-34} set
+            :type delivery_type: int | None
+            :param status: Order Status ID; integer in {1, 2, 3, 4, 5, 7, 10, 11, 12} set
+            :type status: int | None
+            :param delivery_time_type: Order Delivery Time Type ID; integer in {0, 1, 2} set
+            :type delivery_time_type: int | None
+            :return: A page of requested orders
+            :rtype: FwPage[FwOrder]
+            :raises FwValidationError:
+            :raises FwParsingError:
+            :raises FwNetworkError:
+            :raises FwBadResponseStatusError:
+            :raises FwError:
+            """
+            DATE_FORMAT = "%Y-%m-%d"
+            qb = [
+                f"shopId={self._shop_id}",
+                f"page={validate('page', page, is_page_valid)}",
+                f"limit={validate('limit', limit, is_order_limit_valid)}",
+            ]
+            if order_id is not None:
+                qb.append(f"id={validate('orderId', order_id, is_int32_id_valid)}")
+            if created_date is not None:
+                qb.append(f"createdDate={created_date.strftime(DATE_FORMAT)}")
+            if delivery_date_from is not None:
+                qb.append(f"deliveryDateFrom={delivery_date_from.strftime(DATE_FORMAT)}")
+            if delivery_date_to is not None:
+                qb.append(f"deliveryDateTo={delivery_date_to.strftime(DATE_FORMAT)}")
+            if delivery_type is not None:
+                qb.append(f"deliveryType={validate('deliveryType', delivery_type, is_order_delivery_type_valid)}")
+            if status is not None:
+                qb.append(f"status={validate('status', status, is_order_status_valid)}")
+            if delivery_time_type is not None:
+                validated_dtt = validate('deliveryTimeType', delivery_time_type, is_order_delivery_time_type_valid)
+                qb.append(f"deliveryTimeType={validated_dtt}")
+            url = f"https://{self._m._c._domain}/apiseller/orders/list?{'&'.join(qb)}"
+            headers = _authorize(self._m._token, {})
+            content = await self._m._c._request("get", url, headers=headers)
+            return FwPage(content, "items", FwOrder)

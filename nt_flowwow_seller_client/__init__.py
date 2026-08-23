@@ -23,6 +23,8 @@ from ._respmodels import (
     FwPage,
     FwShop,
     FwProduct,
+    FwOrderItem,
+    FwOrder,
     FwFlatProductRespErr,
     FwOfferMappingRespErr,
     FwProductActiveRespErr,

@@ -1,7 +1,9 @@
 from typing import Any, AsyncGenerator
 import pytest
 import pytest_asyncio
+import yarl
 from aioresponses import aioresponses
+from datetime import date
 import nt_flowwow_seller_client._errors as errors
 import nt_flowwow_seller_client._reqmodels as reqmodels
 import nt_flowwow_seller_client._respmodels as respmodels
@@ -13,10 +15,15 @@ SHOP_ID = 987654
 TOKEN = "tok456"
 
 
+def normalize_url(url: str) -> yarl.URL:
+    parsed = yarl.URL(url)
+    return parsed.with_query(sorted(parsed.query.items()))
+
+
 def verify_request(actual_reqs: list, expected_url: str, expected_body: Any) -> None:
     assert len(actual_reqs) == 1
     actual_url, actual_kwargs = actual_reqs[0]
-    assert str(actual_url) == expected_url
+    assert actual_url == normalize_url(expected_url)
     assert actual_kwargs["json"] == expected_body
 
 
@@ -26,10 +33,10 @@ def verify_request_(
     assert len(actual_reqs) == 1
     actual_req = next(iter(actual_reqs.items()))
     assert actual_req[0][0] == expected_method
-    assert str(actual_req[0][1]) == expected_url
+    assert actual_req[0][1] == normalize_url(expected_url)
     actual_kwargs = actual_req[1][0].kwargs
     assert actual_kwargs["headers"] == expected_headers
-    assert actual_kwargs["json"] == expected_body
+    assert actual_kwargs.get("json") == expected_body
 
 
 @pytest_asyncio.fixture
@@ -434,3 +441,103 @@ async def test_update_stocks(client: FwClient, changes, resp_body, expected_body
         mocked.assert_called_once()
         verify_request_(mocked.requests, "put", URL, _authorize(TOKEN, {}), expected_body)
         model_utils.verify_stock_updating_errors_equal(expected_errors, actual_errors)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "order_id, expected_order",
+    [
+        (
+            1001, respmodels.FwOrder({
+                "id": 1001, "createdDate": 1234, "status": 1, "deliveryType": 2,
+                "courierInfo": "ci1", "shopAdditionalInfo": "sai1", "comment": "c1", "message": "m1",
+                "user": {"name": "un1"}, "recipient": {"name": "rn1"}, "products": [
+                    {"offerId": "x2001", "productId": 2001, "count": 5, "cost": "2.1EUR"},
+                    {"offerId": "y2002", "productId": 2002, "count": 2, "cost": "4.99EUR"},
+                    {"count": 1, "cost": "0.1GEL"},
+                ]
+            })
+        ),
+        (
+            1002, respmodels.FwOrder({
+                "id": 1002, "createdDate": 1663711200, "status": 2, "deliveryType": 3,
+                "user": {"name": "un2"}, "recipient": {"name": "rn2"}, "products": [
+                    {"offerId": "z2003", "productId": 2003, "count": 3, "cost": "1999.99AMD"},
+                ]
+            })
+        ),
+    ]
+)
+async def test_get_order(client: FwClient, order_id, expected_order):
+    URL = f"https://apis.flowwow.com/apiseller/orders/view?shopId={SHOP_ID}&orderId={order_id}"
+    with aioresponses() as mocked:
+        # mock
+        mocked.get(URL, payload=expected_order.raw)
+        # act
+        shop = client.merchant(TOKEN).shop(SHOP_ID)
+        actual_order = await shop.get_order(order_id)
+        # assert
+        mocked.assert_called_once()
+        verify_request_(mocked.requests, "get", URL, _authorize(TOKEN, {}), None)
+        model_utils.verify_orders_equal(expected_order, actual_order)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "page, limit, order_id, created_date, delivery_date_from, delivery_date_to, delivery_type,"
+    "status, delivery_time_type, expected_query, expected_orders",
+    [
+        (
+            0, 98, None, None, None, None, None, None, None,
+            "", model_utils.make_order_page({
+                "page": 0, "total": 2, "items": [
+                    {
+                        "id": 1001, "createdDate": 1234, "status": 1, "deliveryType": 2,
+                        "courierInfo": "ci1", "shopAdditionalInfo": "sai1", "comment": "c1", "message": "m1",
+                        "user": {"name": "un1"}, "recipient": {"name": "rn1"}, "products": [
+                            {"offerId": "x2001", "productId": 2001, "count": 5, "cost": "2.1EUR"},
+                            {"offerId": "y2002", "productId": 2002, "count": 2, "cost": "4.99EUR"},
+                            {"count": 1, "cost": "0.1GEL"},
+                        ]
+                    },
+                    {},
+                ]
+            })
+        ),
+        (
+            1, 10, 1002, date(2022, 9, 21), date(2022, 2, 24), date(2023, 6, 23), 2, 1, 0,
+            "id=1002&createdDate=2022-09-21&deliveryDateFrom=2022-02-24&deliveryDateTo=2023-06-23&"
+            "deliveryType=2&status=1&deliveryTimeType=0", model_utils.make_order_page({
+                "page": 0, "total": 11, "items": [
+                    {
+                        "id": 1002, "createdDate": 1663711200, "status": 2, "deliveryType": 3,
+                        "user": {"name": "un2"}, "recipient": {"name": "rn2"}, "products": [
+                            {"offerId": "z2003", "productId": 2003, "count": 3, "cost": "1999.99AMD"},
+                        ]
+                    },
+                ]
+            })
+        ),
+    ]
+)
+async def test_get_orders(
+    client: FwClient, page, limit, order_id, created_date, delivery_date_from, delivery_date_to, delivery_type,
+    status, delivery_time_type, expected_query, expected_orders
+):
+    url = f"https://apis.flowwow.com/apiseller/orders/list?shopId={SHOP_ID}&page={page}&limit={limit}"
+    if expected_query:
+        url += f"&{expected_query}"
+    with aioresponses() as mocked:
+        # mock
+        mocked.get(url, payload=expected_orders.raw)
+        # act
+        shop = client.merchant(TOKEN).shop(SHOP_ID)
+        actual_orders = await shop.get_orders(
+            page, limit, order_id=order_id, created_date=created_date, delivery_date_from=delivery_date_from,
+            delivery_date_to=delivery_date_to, delivery_type=delivery_type, status=status,
+            delivery_time_type=delivery_time_type
+        )
+        # assert
+        mocked.assert_called_once()
+        verify_request_(mocked.requests, "get", url, _authorize(TOKEN, {}), None)
+        model_utils.verify_pages_equal(expected_orders, actual_orders, model_utils.verify_orders_equal)

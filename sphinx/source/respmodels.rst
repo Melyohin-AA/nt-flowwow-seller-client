@@ -10,6 +10,12 @@ Response Models
 .. autoclass:: nt_flowwow_seller_client::FwProduct
    :members:
 
+.. autoclass:: nt_flowwow_seller_client::FwOrder
+   :members:
+
+.. autoclass:: nt_flowwow_seller_client::FwOrderItem
+   :members:
+
 .. autoclass:: nt_flowwow_seller_client::FwFlatProductRespErr
    :members:
 

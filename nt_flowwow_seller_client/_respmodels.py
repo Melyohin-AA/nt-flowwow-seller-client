@@ -124,6 +124,85 @@ class FwProduct:
         self.currency_code = _read(raw, "currencyCode", str)
 
 
+class FwOrderItem:
+    """
+    Represents an ordered product from a response.
+
+    Some of the actual object's fields may be unparsed but stored within the `raw` field.
+
+    :param raw: Raw JSON-compatible value
+    :type raw: dict[str, Any]
+    :param offer_id: Ordered Product's offer ID
+    :type offer_id: str | None
+    :param product_id: Ordered Product's product ID
+    :type product_id: int | None
+    :param count: Ordered Product's number
+    :type count: int
+    :param cost: Ordered Product's cost //~ specify if it is a cost per unit or an overall cost
+    :type cost: str
+    """
+
+    def __init__(self, raw: dict[str, Any]) -> None:
+        self.raw = raw
+        self.offer_id = _empty_str_as_none(_read_opt(raw, "offerId", str))
+        self.product_id = _read_opt(raw, "productId", int)
+        self.count = _read(raw, "count", int)
+        self.cost = _read(raw, "cost", str)
+
+
+class FwOrder:
+    """
+    Represents an order from a response.
+
+    Some of the actual object's fields may be unparsed but stored within the `raw` field.
+
+    :param raw: Raw JSON-compatible value
+    :type raw: dict[str, Any]
+    :param id: Order ID
+    :type id: int | None
+    :param created_date: Order's creation UNIX timestamp in seconds
+    :type created_date: int | None
+    :param status: Order's status
+    :type status: int | None
+    :param delivery_type: Order's delivery type
+    :type delivery_type: int | None
+    :param courier_info: A comment for a courier
+    :type courier_info: str | None
+    :param shop_additional_info: A comment for a shop
+    :type shop_additional_info: str | None
+    :param comment: Customer's comment
+    :type comment: str | None
+    :param message: Postcard text
+    :type message: str | None
+    :param user_name: Customer's name
+    :type user_name: str | None
+    :param recipient_name: Recipient's name
+    :type recipient_name: str | None
+    :param products: Order's items
+    :type products: list[FwOrderItem] | None
+    """
+
+    def __init__(self, raw: Any) -> None:
+        self.raw = _validate_type("order", raw, dict)
+        self.id = _read_opt(raw, "id", int)
+        self.created_date = _read_opt(raw, "createdDate", int)
+        self.status = _read_opt(raw, "status", int)
+        self.delivery_type = _read_opt(raw, "deliveryType", int)
+        self.courier_info = _read_opt(raw, "courierInfo", str)
+        self.shop_additional_info = _read_opt(raw, "shopAdditionalInfo", str)
+        self.comment = _read_opt(raw, "comment", str)
+        self.message = _read_opt(raw, "message", str)
+        user = _read_opt(raw, "user", dict)
+        self.user_name = _read(user, "name", str) if user else None
+        recipient = _read_opt(raw, "recipient", dict)
+        self.recipient_name = _read(recipient, "name", str) if recipient else None
+        self.products = (
+            [FwOrderItem(_validate_type("products[i]", p, dict)) for p in products]
+            if (products := _read_opt(raw, "products", list)) else
+            None
+        )
+
+
 # Partial errors
 
 class FwFlatProductRespErr:
