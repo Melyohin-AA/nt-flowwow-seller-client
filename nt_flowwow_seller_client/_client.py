@@ -11,9 +11,8 @@ from ._respmodels import (
     FwPage, FwShop, FwProduct, FwOrder, FwOfferMappingRespErr, FwProductActiveRespErr, FwStockUpdatingRespErr,
 )
 from ._validation import (
-    validate, validate_query_list, validate_token, is_int32_id_valid, is_offer_id_valid,
+    validate, validate_query_list, validate_token, is_int32_valid, is_int32_id_valid, is_offer_id_valid,
     is_page_valid, is_shop_limit_valid, is_product_limit_valid, is_order_limit_valid, is_product_type_valid,
-    is_order_delivery_type_valid, is_order_status_valid, is_order_delivery_time_type_valid,
 )
 
 
@@ -324,13 +323,17 @@ class FwClient:
             created_date: datetime.date | None = None,
             delivery_date_from: datetime.date | None = None,
             delivery_date_to: datetime.date | None = None,
-            delivery_type: int | None = None,
             status: int | None = None,
+            delivery_type: int | None = None,
             delivery_time_type: int | None = None,
         ) -> FwPage[FwOrder]:
             """
             Retrieves paged orders of the shop from endpoint
             [`/apiseller/orders/list`](https://seller-docs.flowwow.com/5.-instrumenty-prodavca/5.1-dokumentaciya-i-podderzhka-po-api/otkrytoe-api-dlya-prodavcov-0.0.1#get-apiseller-orders-list).
+
+            Parameters `status`, `delivery_type`, `delivery_time_type` are not fully validated.
+            A value may pass the validation but still be rejected by the API.
+            It is recommended to take values directly from the API's responses.
 
             :param page: Number of page to be requested; non-negative integer
             :type page: int
@@ -344,11 +347,11 @@ class FwClient:
             :type delivery_date_from: datetime.date | None
             :param delivery_date_to: Order's delivery date to
             :type delivery_date_to: datetime.date | None
-            :param delivery_type: Order Delivery Type ID; integer in {0-2, 4, 5, 10-12, 20-24, 26, 32-34} set
-            :type delivery_type: int | None
-            :param status: Order Status ID; integer in {1, 2, 3, 4, 5, 7, 10, 11, 12} set
+            :param status: Order Status ID; integer in [0, 2^32) range
             :type status: int | None
-            :param delivery_time_type: Order Delivery Time Type ID; integer in {0, 1, 2} set
+            :param delivery_type: Order Delivery Type ID; integer in [0, 2^32) range
+            :type delivery_type: int | None
+            :param delivery_time_type: Order Delivery Time Type ID; integer in [0, 2^32) range
             :type delivery_time_type: int | None
             :return: A page of requested orders
             :rtype: FwPage[FwOrder]
@@ -372,13 +375,12 @@ class FwClient:
                 qb.append(f"deliveryDateFrom={delivery_date_from.strftime(DATE_FORMAT)}")
             if delivery_date_to is not None:
                 qb.append(f"deliveryDateTo={delivery_date_to.strftime(DATE_FORMAT)}")
-            if delivery_type is not None:
-                qb.append(f"deliveryType={validate('deliveryType', delivery_type, is_order_delivery_type_valid)}")
             if status is not None:
-                qb.append(f"status={validate('status', status, is_order_status_valid)}")
+                qb.append(f"status={validate('status', status, is_int32_valid)}")
+            if delivery_type is not None:
+                qb.append(f"deliveryType={validate('deliveryType', delivery_type, is_int32_valid)}")
             if delivery_time_type is not None:
-                validated_dtt = validate('deliveryTimeType', delivery_time_type, is_order_delivery_time_type_valid)
-                qb.append(f"deliveryTimeType={validated_dtt}")
+                qb.append(f"deliveryTimeType={validate('deliveryTimeType', delivery_time_type, is_int32_valid)}")
             url = f"https://{self._m._c._domain}/apiseller/orders/list?{'&'.join(qb)}"
             headers = _authorize(self._m._token, {})
             content = await self._m._c._request("get", url, headers=headers)

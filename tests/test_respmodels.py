@@ -1,4 +1,5 @@
 import pytest
+from .model_utils import verify_order_items_equal
 import nt_flowwow_seller_client._respmodels as m
 from nt_flowwow_seller_client._errors import FwParsingError
 
@@ -124,6 +125,77 @@ def test_make_product():
     assert product.price == PRICE
     assert product.discount == DISCOUNT
     assert product.currency_code == CURR
+
+
+def test_make_order_item():
+    OFFER_ID = "4182"
+    PRODUCT_ID = 83418243
+    COUNT = 2
+    COST = "119.80"
+    raw = {
+        "offerId": OFFER_ID, "productId": PRODUCT_ID,
+        "isActive": True, "type": 1, "categoryId": 54, "subCategoryId": 112, "name": "Rose bouquet",
+        "description": "Beautiful bouquet of roses", "url": "https://flowwow.com/product/83418243",
+        "available": 1, "stock": 10, "minOrder": 1, "price": "59.90", "discount": "20", "currencyCode": "GEL",
+        "images": ["https://example.com"], "productionTime": 1, "shipmentTime": 1, "canRent": 1,
+        "originalId": 7123456, "isDeliveryPost": True, "isStarred": True, "vat": "10",
+        "count": COUNT, "cost": COST
+    }
+    order_item = m.FwOrderItem(raw)
+    assert order_item.raw == raw
+    assert order_item.offer_id == OFFER_ID
+    assert order_item.product_id == PRODUCT_ID
+    assert order_item.count == COUNT
+    assert order_item.cost == COST
+
+
+def test_make_order():
+    ID = 19522730
+    CREATED_DATE = 1762686732
+    STATUS = 1
+    DELIVERY_TYPE = 1
+    DELIVERY_TIME_TYPE = 2
+    SHOP_ADDITIONAL_INFO = "this is a shop comment"
+    COMMENT = "this is a client's comment"
+    MESSAGE = "this is a card's message"
+    USER_NAME = "Ivan Petrov"
+    RECIPIENT_NAME = "Marin Tatiani"
+    expected_order_item = m.FwOrderItem({
+        "offerId": "4182", "productId": 83418243,
+        "isActive": True, "type": 1, "categoryId": 54, "subCategoryId": 112, "name": "Rose bouquet",
+        "description": "Beautiful bouquet of roses", "url": "https://flowwow.com/product/83418243",
+        "available": 1, "stock": 10, "minOrder": 1, "price": "59.90", "discount": "20", "currencyCode": "GEL",
+        "images": ["https://example.com"], "productionTime": 1, "shipmentTime": 1, "canRent": 1,
+        "originalId": 7123456, "isDeliveryPost": True, "isStarred": True, "vat": "10",
+        "count": 2, "cost": "119.80"
+    })
+    raw = {
+        "id": ID, "shopId": 260, "createdDate": CREATED_DATE,
+        "status": STATUS, "deliveryType": DELIVERY_TYPE, "deliveryTimeType": DELIVERY_TIME_TYPE,
+        "deliveryDateFrom": 1762686732, "deliveryDateTo": 1762686732,
+        "address": "123 Pekini street", "courierInfo": "entrance door code is 5547",
+        "shopAdditionalInfo": SHOP_ADDITIONAL_INFO, "comment": COMMENT,
+        "photoBeforeUrl": "https://flowwow.com/data/flowphoto_before/150/8e/68b5ae8c5ma8e.jpg",
+        "photoAfterUrl": "https://flowwow.com/data/flowphoto_before/150/6e/69a5ae129cd7d.jpg",
+        "message": MESSAGE, "products": [expected_order_item.raw],
+        "user": {"name": USER_NAME, "phone": "+7991234567"},
+        "recipient": {"name": RECIPIENT_NAME, "phone": "+995987654321"},
+        "sourceHost": None
+    }
+    order = m.FwOrder(raw)
+    assert raw == order.raw
+    assert ID == order.id
+    assert CREATED_DATE == order.created_date
+    assert STATUS == order.status
+    assert DELIVERY_TYPE == order.delivery_type
+    assert DELIVERY_TIME_TYPE == order.delivery_time_type
+    assert SHOP_ADDITIONAL_INFO == order.shop_additional_info
+    assert COMMENT == order.comment
+    assert MESSAGE == order.message
+    assert USER_NAME == order.user_name
+    assert RECIPIENT_NAME == order.recipient_name
+    assert len(order.products) == 1
+    verify_order_items_equal(expected_order_item, order.products[0])
 
 
 def test_make_flat_product_error():

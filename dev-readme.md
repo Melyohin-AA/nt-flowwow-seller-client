@@ -4,7 +4,7 @@ Test coverage:
 1. `pytest --cov=nt_flowwow_seller_client tests`
 2. `coverage html`
 
-Generate docs (Linux):
+Generate docs (GNU Linux):
 1. `cd sphinx; make html; cd ..`
 2. `rm -rf docs`
 3. `mv sphinx/build/html docs`

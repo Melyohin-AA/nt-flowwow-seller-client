@@ -484,8 +484,8 @@ async def test_get_order(client: FwClient, order_id, expected_order):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "page, limit, order_id, created_date, delivery_date_from, delivery_date_to, delivery_type,"
-    "status, delivery_time_type, expected_query, expected_orders",
+    "page, limit, order_id, created_date, delivery_date_from, delivery_date_to,"
+    "status, delivery_type, delivery_time_type, expected_query, expected_orders",
     [
         (
             0, 98, None, None, None, None, None, None, None,
@@ -505,9 +505,9 @@ async def test_get_order(client: FwClient, order_id, expected_order):
             })
         ),
         (
-            1, 10, 1002, date(2022, 9, 21), date(2022, 2, 24), date(2023, 6, 23), 2, 1, 0,
+            1, 10, 1002, date(2022, 9, 21), date(2022, 2, 24), date(2023, 6, 23), 1, 2, 0,
             "id=1002&createdDate=2022-09-21&deliveryDateFrom=2022-02-24&deliveryDateTo=2023-06-23&"
-            "deliveryType=2&status=1&deliveryTimeType=0", model_utils.make_order_page({
+            "status=1&deliveryType=2&deliveryTimeType=0", model_utils.make_order_page({
                 "page": 0, "total": 11, "items": [
                     {
                         "id": 1002, "createdDate": 1663711200, "status": 2, "deliveryType": 3,

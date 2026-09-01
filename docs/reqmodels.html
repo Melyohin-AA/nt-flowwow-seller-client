@@ -64,7 +64,7 @@
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">product_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwProductIdQueryList.__init__" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>product_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Product IDs of products to be requested; list of integers in [1, 2^32-1] range</p>
+<dd class="field-odd"><p><strong>product_ids</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Product IDs of products to be requested; list of integers in [1, 2^32) range</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
@@ -107,7 +107,7 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>product_id</strong> (<em>int</em>) – Product ID of a product; integer in [1, 2^32-1] range</p></li>
+<li><p><strong>product_id</strong> (<em>int</em>) – Product ID of a product; integer in [1, 2^32) range</p></li>
 <li><p><strong>offer_id</strong> (<em>str</em>) – Offer ID of a product; non-empty string limited to 50 chars</p></li>
 </ul>
 </dd>
@@ -132,7 +132,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>offer_id</strong> (<em>str</em>) – Offer ID of a product; non-empty string limited to 50 chars</p></li>
-<li><p><strong>stock</strong> (<em>int</em>) – Stock quantity of a product; integer in [0, 2^32-1] range</p></li>
+<li><p><strong>stock</strong> (<em>int</em>) – Stock quantity of a product; integer in [0, 2^32) range</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>

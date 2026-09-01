@@ -102,12 +102,12 @@
 <li><p><strong>raw</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Raw JSON-compatible value</p></li>
 <li><p><strong>id</strong> (<em>int</em><em> | </em><em>None</em>) – Order ID</p></li>
 <li><p><strong>created_date</strong> (<em>int</em><em> | </em><em>None</em>) – Order’s creation UNIX timestamp in seconds</p></li>
-<li><p><strong>status</strong> (<em>int</em><em> | </em><em>None</em>) – Order’s status</p></li>
-<li><p><strong>delivery_type</strong> (<em>int</em><em> | </em><em>None</em>) – Order’s delivery type</p></li>
-<li><p><strong>courier_info</strong> (<em>str</em><em> | </em><em>None</em>) – A comment for a courier</p></li>
+<li><p><strong>status</strong> (<em>int</em><em> | </em><em>None</em>) – Status ID</p></li>
+<li><p><strong>delivery_type</strong> (<em>int</em><em> | </em><em>None</em>) – Delivery Type ID</p></li>
+<li><p><strong>delivery_time_type</strong> (<em>int</em><em> | </em><em>None</em>) – Delivery Time Type ID</p></li>
 <li><p><strong>shop_additional_info</strong> (<em>str</em><em> | </em><em>None</em>) – A comment for a shop</p></li>
 <li><p><strong>comment</strong> (<em>str</em><em> | </em><em>None</em>) – Customer’s comment</p></li>
-<li><p><strong>message</strong> (<em>str</em><em> | </em><em>None</em>) – Postcard text</p></li>
+<li><p><strong>message</strong> (<em>str</em><em> | </em><em>None</em>) – Card text</p></li>
 <li><p><strong>user_name</strong> (<em>str</em><em> | </em><em>None</em>) – Customer’s name</p></li>
 <li><p><strong>recipient_name</strong> (<em>str</em><em> | </em><em>None</em>) – Recipient’s name</p></li>
 <li><p><strong>products</strong> (<em>list</em><em>[</em><a class="reference internal" href="#nt_flowwow_seller_client.FwOrderItem" title="nt_flowwow_seller_client.FwOrderItem"><em>FwOrderItem</em></a><em>] </em><em>| </em><em>None</em>) – Order’s items</p></li>
@@ -128,7 +128,7 @@
 <li><p><strong>offer_id</strong> (<em>str</em><em> | </em><em>None</em>) – Ordered Product’s offer ID</p></li>
 <li><p><strong>product_id</strong> (<em>int</em><em> | </em><em>None</em>) – Ordered Product’s product ID</p></li>
 <li><p><strong>count</strong> (<em>int</em>) – Ordered Product’s number</p></li>
-<li><p><strong>cost</strong> (<em>str</em>) – Ordered Product’s cost</p></li>
+<li><p><strong>cost</strong> (<em>str</em>) – Ordered Product’s cost //~ specify if it is a cost per unit or an overall cost</p></li>
 </ul>
 </dd>
 </dl>

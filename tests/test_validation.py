@@ -81,6 +81,18 @@ def test_is_token_valid(token, is_valid):
 @pytest.mark.parametrize(
     "id, is_valid",
     [
+        (0, True), ((1 << 32) - 1, True),
+        (-1, False), (1 << 32, False),
+        ("1", False), (True, False),
+    ]
+)
+def test_is_int32_valid(id, is_valid):
+    assert v.is_int32_valid(id) == is_valid
+
+
+@pytest.mark.parametrize(
+    "id, is_valid",
+    [
         (1, True), ((1 << 32) - 1, True),
         (0, False), (1 << 32, False),
         ("1", False), (True, False),
@@ -171,32 +183,3 @@ def test_is_order_limit_valid(limit, is_valid):
 )
 def test_is_product_type_valid(prod_type, is_valid):
     assert v.is_product_type_valid(prod_type) == is_valid
-
-
-def test_is_order_delivery_type_valid():
-    assert v.is_order_delivery_type_valid("1") == False
-    assert v.is_order_delivery_type_valid(True) == False
-    for delivery_type in range(-1, max(v.VALID_ORDER_DELIVERY_TYPES) + 2):
-        assert v.is_order_delivery_type_valid(delivery_type) == (delivery_type in v.VALID_ORDER_DELIVERY_TYPES)
-        assert v.is_order_delivery_type_valid(delivery_type - 0.1) == False
-
-
-def test_is_order_status_valid():
-    assert v.is_order_status_valid("1") == False
-    assert v.is_order_status_valid(True) == False
-    for status in range(-1, max(v.VALID_ORDER_STATUSES) + 2):
-        assert v.is_order_status_valid(status) == (status in v.VALID_ORDER_STATUSES)
-        assert v.is_order_status_valid(status - 0.1) == False
-
-
-@pytest.mark.parametrize(
-    "delivery_time_type, is_valid",
-    [
-        (0, True), (1, True), (2, True),
-        (-1, False), (3, False),
-        (0.99, False), (2.01, False), (1.5, False),
-        ("1", False), (True, False),
-    ]
-)
-def test_is_order_delivery_time_type_valid(delivery_time_type, is_valid):
-    assert v.is_order_delivery_time_type_valid(delivery_time_type) == is_valid

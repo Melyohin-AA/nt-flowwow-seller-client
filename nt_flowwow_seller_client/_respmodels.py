@@ -162,17 +162,17 @@ class FwOrder:
     :type id: int | None
     :param created_date: Order's creation UNIX timestamp in seconds
     :type created_date: int | None
-    :param status: Order's status
+    :param status: Status ID
     :type status: int | None
-    :param delivery_type: Order's delivery type
+    :param delivery_type: Delivery Type ID
     :type delivery_type: int | None
-    :param courier_info: A comment for a courier
-    :type courier_info: str | None
+    :param delivery_time_type: Delivery Time Type ID
+    :type delivery_time_type: int | None
     :param shop_additional_info: A comment for a shop
     :type shop_additional_info: str | None
     :param comment: Customer's comment
     :type comment: str | None
-    :param message: Postcard text
+    :param message: Card text
     :type message: str | None
     :param user_name: Customer's name
     :type user_name: str | None
@@ -188,7 +188,7 @@ class FwOrder:
         self.created_date = _read_opt(raw, "createdDate", int)
         self.status = _read_opt(raw, "status", int)
         self.delivery_type = _read_opt(raw, "deliveryType", int)
-        self.courier_info = _read_opt(raw, "courierInfo", str)
+        self.delivery_time_type = _read_opt(raw, "deliveryTimeType", int)
         self.shop_additional_info = _read_opt(raw, "shopAdditionalInfo", str)
         self.comment = _read_opt(raw, "comment", str)
         self.message = _read_opt(raw, "message", str)
@@ -198,7 +198,7 @@ class FwOrder:
         self.recipient_name = _read(recipient, "name", str) if recipient else None
         self.products = (
             [FwOrderItem(_validate_type("products[i]", p, dict)) for p in products]
-            if (products := _read_opt(raw, "products", list)) else
+            if (products := _read_opt(raw, "products", list)) is not None else
             None
         )
 

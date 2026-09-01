@@ -2,8 +2,8 @@ mypy ==2.1.0
 pytest ==9.0.3
 pytest-asyncio ==1.4.0
 pytest-cov ==7.1.0
-aioresponses ==0.7.8
-aiohttp ==3.13.5 # aioresponses 0.7.8 does not work with newer aiohttp versions
+aioresponses ==0.7.9
+aiohttp ==3.13.5 # aioresponses 0.7.9 does not work with newer aiohttp versions
 Sphinx ==8.1.3
 build ==1.5.0
 twine ==6.2.0

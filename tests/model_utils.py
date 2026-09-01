@@ -60,7 +60,7 @@ def verify_orders_equal(e: respmodels.FwOrder, a: respmodels.FwOrder) -> None:
     assert e.created_date == a.created_date
     assert e.status == a.status
     assert e.delivery_type == a.delivery_type
-    assert e.courier_info == a.courier_info
+    assert e.delivery_time_type == a.delivery_time_type
     assert e.shop_additional_info == a.shop_additional_info
     assert e.comment == a.comment
     assert e.message == a.message
