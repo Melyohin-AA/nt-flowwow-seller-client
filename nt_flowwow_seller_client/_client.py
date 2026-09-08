@@ -335,7 +335,7 @@ class FwClient:
             A value may pass the validation but still be rejected by the API.
             It is recommended to take values directly from the API's responses.
 
-            :param page: Number of page to be requested; non-negative integer
+            :param page: Number of page to be requested, corrected; non-negative integer
             :type page: int
             :param limit: Max page size; integer in [1, 100] range
             :type limit: int
@@ -364,7 +364,7 @@ class FwClient:
             DATE_FORMAT = "%Y-%m-%d"
             qb = [
                 f"shopId={self._shop_id}",
-                f"page={validate('page', page, is_page_valid)}",
+                f"page={validate('page', page, is_page_valid) + 1}",
                 f"limit={validate('limit', limit, is_order_limit_valid)}",
             ]
             if order_id is not None:
