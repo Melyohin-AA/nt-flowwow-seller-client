@@ -12,6 +12,8 @@ Currently supported endpoints:
 * `/apiseller/products/offersMappings`
 * `/apiseller/products/hide` and `/apiseller/products/unhide`
 * `/apiseller/stocks/put`
+* `/apiseller/orders/view`
+* `/apiseller/orders/list`
 
 This project follows [SemVer](https://semver.org/) versioning scheme.
 
