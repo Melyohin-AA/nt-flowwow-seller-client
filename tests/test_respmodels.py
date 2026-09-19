@@ -151,6 +151,7 @@ def test_make_order_item():
 
 def test_make_order():
     ID = 19522730
+    SHOP_ID = 260
     CREATED_DATE = 1762686732
     STATUS = 1
     DELIVERY_TYPE = 1
@@ -170,7 +171,7 @@ def test_make_order():
         "count": 2, "cost": "119.80"
     })
     raw = {
-        "id": ID, "shopId": 260, "createdDate": CREATED_DATE,
+        "id": ID, "shopId": SHOP_ID, "createdDate": CREATED_DATE,
         "status": STATUS, "deliveryType": DELIVERY_TYPE, "deliveryTimeType": DELIVERY_TIME_TYPE,
         "deliveryDateFrom": 1762686732, "deliveryDateTo": 1762686732,
         "address": "123 Pekini street", "courierInfo": "entrance door code is 5547",
@@ -185,6 +186,7 @@ def test_make_order():
     order = m.FwOrder(raw)
     assert raw == order.raw
     assert ID == order.id
+    assert SHOP_ID == order.shop_id
     assert CREATED_DATE == order.created_date
     assert STATUS == order.status
     assert DELIVERY_TYPE == order.delivery_type

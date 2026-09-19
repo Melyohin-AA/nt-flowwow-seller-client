@@ -57,6 +57,7 @@ def verify_order_items_equal(e: respmodels.FwOrderItem, a: respmodels.FwOrderIte
 def verify_orders_equal(e: respmodels.FwOrder, a: respmodels.FwOrder) -> None:
     assert e.raw == a.raw
     assert e.id == a.id
+    assert e.shop_id == a.shop_id
     assert e.created_date == a.created_date
     assert e.status == a.status
     assert e.delivery_type == a.delivery_type

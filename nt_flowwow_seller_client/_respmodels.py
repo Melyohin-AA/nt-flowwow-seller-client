@@ -159,6 +159,8 @@ class FwOrder:
     :param raw: Raw JSON-compatible value
     :type raw: dict[str, Any]
     :param id: Order ID
+    :type shop_id: int | None
+    :param shop_id: Shop ID
     :type id: int | None
     :param created_date: Order's creation UNIX timestamp in seconds
     :type created_date: int | None
@@ -185,6 +187,7 @@ class FwOrder:
     def __init__(self, raw: Any) -> None:
         self.raw = _validate_type("order", raw, dict)
         self.id = _read_opt(raw, "id", int)
+        self.shop_id = _read_opt(raw, "shopId", int)
         self.created_date = _read_opt(raw, "createdDate", int)
         self.status = _read_opt(raw, "status", int)
         self.delivery_type = _read_opt(raw, "deliveryType", int)
