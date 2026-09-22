@@ -159,9 +159,9 @@ class FwOrder:
     :param raw: Raw JSON-compatible value
     :type raw: dict[str, Any]
     :param id: Order ID
-    :type shop_id: int | None
-    :param shop_id: Shop ID
     :type id: int | None
+    :param shop_id: Shop ID
+    :type shop_id: int | None
     :param created_date: Order's creation UNIX timestamp in seconds
     :type created_date: int | None
     :param status: Status ID
