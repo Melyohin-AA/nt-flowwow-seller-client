@@ -452,9 +452,9 @@ async def test_update_stocks(client: FwClient, changes, resp_body, expected_body
                 "id": 1001, "shopId": SHOP_ID, "createdDate": 1234, "status": 1, "deliveryType": 2,
                 "courierInfo": "ci1", "shopAdditionalInfo": "sai1", "comment": "c1", "message": "m1",
                 "user": {"name": "un1"}, "recipient": {"name": "rn1"}, "products": [
-                    {"offerId": "x2001", "productId": 2001, "count": 5, "cost": "2.1EUR"},
-                    {"offerId": "y2002", "productId": 2002, "count": 2, "cost": "4.99EUR"},
-                    {"count": 1, "cost": "0.1GEL"},
+                    {"offerId": "x2001", "productId": 2001, "count": 5, "cost": "2.1", "sum": "2.1"},
+                    {"offerId": "y2002", "productId": 2002, "count": 2, "cost": "4.99", "sum": "4.99"},
+                    {"count": 1, "cost": "0.1", "sum": "0.1"},
                 ]
             })
         ),
@@ -462,7 +462,7 @@ async def test_update_stocks(client: FwClient, changes, resp_body, expected_body
             1002, respmodels.FwOrder({
                 "id": 1002, "shopId": SHOP_ID, "createdDate": 1663711200, "status": 2, "deliveryType": 3,
                 "user": {"name": "un2"}, "recipient": {"name": "rn2"}, "products": [
-                    {"offerId": "z2003", "productId": 2003, "count": 3, "cost": "1999.99AMD"},
+                    {"offerId": "z2003", "productId": 2003, "count": 3, "cost": "19.99", "sum": "19.99"},
                 ]
             })
         ),
@@ -495,9 +495,9 @@ async def test_get_order(client: FwClient, order_id, expected_order):
                         "id": 1001, "shopId": SHOP_ID, "createdDate": 1234, "status": 1, "deliveryType": 2,
                         "courierInfo": "ci1", "shopAdditionalInfo": "sai1", "comment": "c1", "message": "m1",
                         "user": {"name": "un1"}, "recipient": {"name": "rn1"}, "products": [
-                            {"offerId": "x2001", "productId": 2001, "count": 5, "cost": "2.1EUR"},
-                            {"offerId": "y2002", "productId": 2002, "count": 2, "cost": "4.99EUR"},
-                            {"count": 1, "cost": "0.1GEL"},
+                            {"offerId": "x2001", "productId": 2001, "count": 5, "cost": "2.1", "sum": "2.1"},
+                            {"offerId": "y2002", "productId": 2002, "count": 2, "cost": "4.99", "sum": "4.99"},
+                            {"count": 1, "cost": "0.1", "sum": "0.1"},
                         ]
                     },
                     {},
@@ -512,7 +512,7 @@ async def test_get_order(client: FwClient, order_id, expected_order):
                     {
                         "id": 1002, "shopId": SHOP_ID, "createdDate": 1663711200, "status": 2, "deliveryType": 3,
                         "user": {"name": "un2"}, "recipient": {"name": "rn2"}, "products": [
-                            {"offerId": "z2003", "productId": 2003, "count": 3, "cost": "1999.99AMD"},
+                            {"offerId": "z2003", "productId": 2003, "count": 3, "cost": "19.99", "sum": "19.99"},
                         ]
                     },
                 ]

@@ -5,7 +5,7 @@ from ._errors import FwParsingError
 T = TypeVar("T")
 
 
-def _validate_type(name, value: Any, t: type[T]) -> T:
+def _validate_type(name: str, value: Any, t: type[T]) -> T:
     if type(value) is t:
         return value
     raise FwParsingError(name, f"expected {value} to be of type {t} but was of type {type(value)}")
@@ -27,6 +27,13 @@ def _read_opt(raw: dict[str, Any], key: str, t: type[T]) -> T | None:
 
 def _empty_str_as_none(s: str | None) -> str | None:
     return None if s == "" else s
+
+
+def _parse_float(name: str, s: str) -> float:
+    try:
+        return float(s)
+    except ValueError:
+        raise FwParsingError(name, f"failed to convert '{s}' to float")
 
 
 # Returned objects
@@ -104,8 +111,12 @@ class FwProduct:
     :type stock: int
     :param price: Product's price
     :type price: str
-    :param discount: Product's discount
+    :param pricef: Product's price as float
+    :type pricef: float
+    :param discount: Product's discount percent
     :type discount: str
+    :param discountf: Product's discount fraction as float
+    :type discountf: float
     :param currency_code: Product's currency code
     :type currency_code: str
     """
@@ -120,7 +131,9 @@ class FwProduct:
         self.available = _read(raw, "available", int)
         self.stock = _read(raw, "stock", int)
         self.price = _read(raw, "price", str)
+        self.pricef = _parse_float("price", self.price)
         self.discount = _read(raw, "discount", str)
+        self.discountf = _parse_float("discount", self.discount) / 100.0
         self.currency_code = _read(raw, "currencyCode", str)
 
 
@@ -138,8 +151,14 @@ class FwOrderItem:
     :type product_id: int | None
     :param count: Ordered Product's number
     :type count: int
-    :param cost: Ordered Product's cost //~ specify if it is a cost per unit or an overall cost
+    :param cost: Ordered Product's cost
     :type cost: str
+    :param costf: Ordered Product's cost as float
+    :type costf: float
+    :param sum: Ordered Product's end cost
+    :type sum: str
+    :param sumf: Ordered Product's end cost as float
+    :type sumf: float
     """
 
     def __init__(self, raw: dict[str, Any]) -> None:
@@ -148,6 +167,19 @@ class FwOrderItem:
         self.product_id = _read_opt(raw, "productId", int)
         self.count = _read(raw, "count", int)
         self.cost = _read(raw, "cost", str)
+        self.costf = _parse_float("cost", self.cost)
+        self.sum = _read(raw, "sum", str)
+        self.sumf = _parse_float("sum", self.sum)
+
+    def read_product(self) -> FwProduct:
+        """
+        Reads Product data of the Order Item.
+
+        :return: Product data
+        :rtype: FwProduct
+        :raises FwParsingError:
+        """
+        return FwProduct(self.raw)
 
 
 class FwOrder:
@@ -170,6 +202,8 @@ class FwOrder:
     :type delivery_type: int | None
     :param delivery_time_type: Delivery Time Type ID
     :type delivery_time_type: int | None
+    :param courier_info: A comment for a courier
+    :type courier_info: str | None
     :param shop_additional_info: A comment for a shop
     :type shop_additional_info: str | None
     :param comment: Customer's comment
@@ -192,6 +226,7 @@ class FwOrder:
         self.status = _read_opt(raw, "status", int)
         self.delivery_type = _read_opt(raw, "deliveryType", int)
         self.delivery_time_type = _read_opt(raw, "deliveryTimeType", int)
+        self.courier_info = _read_opt(raw, "courierInfo", str)
         self.shop_additional_info = _read_opt(raw, "shopAdditionalInfo", str)
         self.comment = _read_opt(raw, "comment", str)
         self.message = _read_opt(raw, "message", str)

@@ -42,7 +42,9 @@ def verify_products_equal(e: respmodels.FwProduct, a: respmodels.FwProduct) -> N
     assert e.available == a.available
     assert e.stock == a.stock
     assert e.price == a.price
+    assert e.pricef == a.pricef
     assert e.discount == a.discount
+    assert e.discountf == a.discountf
     assert e.currency_code == a.currency_code
 
 
@@ -52,6 +54,9 @@ def verify_order_items_equal(e: respmodels.FwOrderItem, a: respmodels.FwOrderIte
     assert e.product_id == a.product_id
     assert e.count == a.count
     assert e.cost == a.cost
+    assert e.costf == a.costf
+    assert e.sum == a.sum
+    assert e.sumf == a.sumf
 
 
 def verify_orders_equal(e: respmodels.FwOrder, a: respmodels.FwOrder) -> None:
@@ -62,6 +67,7 @@ def verify_orders_equal(e: respmodels.FwOrder, a: respmodels.FwOrder) -> None:
     assert e.status == a.status
     assert e.delivery_type == a.delivery_type
     assert e.delivery_time_type == a.delivery_time_type
+    assert e.courier_info == a.courier_info
     assert e.shop_additional_info == a.shop_additional_info
     assert e.comment == a.comment
     assert e.message == a.message
@@ -70,6 +76,7 @@ def verify_orders_equal(e: respmodels.FwOrder, a: respmodels.FwOrder) -> None:
     if e.products is None:
         assert a.products is None
     else:
+        assert a.products is not None
         assert len(e.products) == len(a.products)
         for ep, ap in zip(e.products, a.products):
             verify_order_items_equal(ep, ap)

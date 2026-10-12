@@ -72,6 +72,27 @@ def test_empty_str_as_none(s, expected):
     assert m._empty_str_as_none(s) == expected
 
 
+@pytest.mark.parametrize(
+    "name, s, expected",
+    [
+        ("x", "", None),
+        ("y", "12,34", None),
+        ("z", "0", 0.0),
+        ("w", "0.00", 0.0),
+        ("u", "1.00", 1.0),
+        ("v", "1990.80", 1990.8),
+    ]
+)
+def test_parse_float(name: str, s: str, expected: float | None):
+    try:
+        actual = m._parse_float(name, s)
+        assert expected is not None
+        assert actual == expected
+    except FwParsingError as e:
+        assert expected is None
+        assert name in str(e)
+
+
 def test_make_page():
     ITEMS_LABEL = "elems"
     TOTAL = 150
@@ -105,13 +126,15 @@ def test_make_product():
     AVAILABLE = 64
     STOCK = 12
     PRICE = "123.45"
-    DISCOUNT = "0.01"
-    CURR = "MNT"
+    PRICEF = 123.45
+    DISCOUNT = "1"
+    DISCOUNTF = 0.01
+    CURRENCY_CODE = "MNT"
     raw = {
-      "offerId": OFFER_ID, "productId": PRODUCT_ID,
-      "isActive": IS_ACTIVE, "type": TYPE, "name": NAME,
-      "available": AVAILABLE, "stock": STOCK,
-      "price": PRICE, "discount": DISCOUNT, "currencyCode": CURR,
+        "offerId": OFFER_ID, "productId": PRODUCT_ID,
+        "isActive": IS_ACTIVE, "type": TYPE, "name": NAME,
+        "available": AVAILABLE, "stock": STOCK,
+        "price": PRICE, "discount": DISCOUNT, "currencyCode": CURRENCY_CODE,
     }
     product = m.FwProduct(dict(raw))
     assert product.raw == raw
@@ -123,8 +146,10 @@ def test_make_product():
     assert product.available == AVAILABLE
     assert product.stock == STOCK
     assert product.price == PRICE
+    assert product.pricef == PRICEF
     assert product.discount == DISCOUNT
-    assert product.currency_code == CURR
+    assert product.discountf == DISCOUNTF
+    assert product.currency_code == CURRENCY_CODE
 
 
 def test_make_order_item():
@@ -132,6 +157,9 @@ def test_make_order_item():
     PRODUCT_ID = 83418243
     COUNT = 2
     COST = "119.80"
+    COSTF = 119.8
+    SUM = "95.83"
+    SUMF = 95.83
     raw = {
         "offerId": OFFER_ID, "productId": PRODUCT_ID,
         "isActive": True, "type": 1, "categoryId": 54, "subCategoryId": 112, "name": "Rose bouquet",
@@ -139,14 +167,54 @@ def test_make_order_item():
         "available": 1, "stock": 10, "minOrder": 1, "price": "59.90", "discount": "20", "currencyCode": "GEL",
         "images": ["https://example.com"], "productionTime": 1, "shipmentTime": 1, "canRent": 1,
         "originalId": 7123456, "isDeliveryPost": True, "isStarred": True, "vat": "10",
-        "count": COUNT, "cost": COST
+        "count": COUNT, "cost": COST, "sum": SUM
     }
-    order_item = m.FwOrderItem(raw)
+    order_item = m.FwOrderItem(dict(raw))
     assert order_item.raw == raw
     assert order_item.offer_id == OFFER_ID
     assert order_item.product_id == PRODUCT_ID
     assert order_item.count == COUNT
     assert order_item.cost == COST
+    assert order_item.costf == COSTF
+    assert order_item.sum == SUM
+    assert order_item.sumf == SUMF
+
+
+def test_order_item_read_product():
+    OFFER_ID = "8738"
+    PRODUCT_ID = 9823487
+    IS_ACTIVE = False
+    TYPE = 3
+    NAME = "iusfu"
+    AVAILABLE = 64
+    STOCK = 12
+    PRICE = "123.45"
+    PRICEF = 123.45
+    DISCOUNT = "1"
+    DISCOUNTF = 0.01
+    CURRENCY_CODE = "MNT"
+    raw = {
+        "offerId": OFFER_ID, "productId": PRODUCT_ID,
+        "isActive": IS_ACTIVE, "type": TYPE, "name": NAME,
+        "available": AVAILABLE, "stock": STOCK,
+        "price": PRICE, "discount": DISCOUNT, "currencyCode": CURRENCY_CODE,
+        "count": 2, "cost": "119.80", "sum": "95.83"
+    }
+    order_item = m.FwOrderItem(dict(raw))
+    product = order_item.read_product()
+    assert product.raw == raw
+    assert product.offer_id == OFFER_ID
+    assert product.product_id == PRODUCT_ID
+    assert product.is_active == IS_ACTIVE
+    assert product.type == TYPE
+    assert product.name == NAME
+    assert product.available == AVAILABLE
+    assert product.stock == STOCK
+    assert product.price == PRICE
+    assert product.pricef == PRICEF
+    assert product.discount == DISCOUNT
+    assert product.discountf == DISCOUNTF
+    assert product.currency_code == CURRENCY_CODE
 
 
 def test_make_order():
@@ -156,6 +224,7 @@ def test_make_order():
     STATUS = 1
     DELIVERY_TYPE = 1
     DELIVERY_TIME_TYPE = 2
+    COURIER_INFO = "entrance door code is 5547"
     SHOP_ADDITIONAL_INFO = "this is a shop comment"
     COMMENT = "this is a client's comment"
     MESSAGE = "this is a card's message"
@@ -168,13 +237,13 @@ def test_make_order():
         "available": 1, "stock": 10, "minOrder": 1, "price": "59.90", "discount": "20", "currencyCode": "GEL",
         "images": ["https://example.com"], "productionTime": 1, "shipmentTime": 1, "canRent": 1,
         "originalId": 7123456, "isDeliveryPost": True, "isStarred": True, "vat": "10",
-        "count": 2, "cost": "119.80"
+        "count": 2, "cost": "119.80", "sum": "95.83"
     })
     raw = {
         "id": ID, "shopId": SHOP_ID, "createdDate": CREATED_DATE,
         "status": STATUS, "deliveryType": DELIVERY_TYPE, "deliveryTimeType": DELIVERY_TIME_TYPE,
         "deliveryDateFrom": 1762686732, "deliveryDateTo": 1762686732,
-        "address": "123 Pekini street", "courierInfo": "entrance door code is 5547",
+        "address": "123 Pekini street", "courierInfo": COURIER_INFO,
         "shopAdditionalInfo": SHOP_ADDITIONAL_INFO, "comment": COMMENT,
         "photoBeforeUrl": "https://flowwow.com/data/flowphoto_before/150/8e/68b5ae8c5ma8e.jpg",
         "photoAfterUrl": "https://flowwow.com/data/flowphoto_before/150/6e/69a5ae129cd7d.jpg",
@@ -183,7 +252,7 @@ def test_make_order():
         "recipient": {"name": RECIPIENT_NAME, "phone": "+995987654321"},
         "sourceHost": None
     }
-    order = m.FwOrder(raw)
+    order = m.FwOrder(dict(raw))
     assert raw == order.raw
     assert ID == order.id
     assert SHOP_ID == order.shop_id
@@ -191,6 +260,7 @@ def test_make_order():
     assert STATUS == order.status
     assert DELIVERY_TYPE == order.delivery_type
     assert DELIVERY_TIME_TYPE == order.delivery_time_type
+    assert COURIER_INFO == order.courier_info
     assert SHOP_ADDITIONAL_INFO == order.shop_additional_info
     assert COMMENT == order.comment
     assert MESSAGE == order.message

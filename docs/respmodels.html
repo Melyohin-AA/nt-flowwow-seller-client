@@ -84,7 +84,9 @@
 <li><p><strong>available</strong> (<em>int</em>) – Product’s availability</p></li>
 <li><p><strong>stock</strong> (<em>int</em>) – Product’s quantity in stock</p></li>
 <li><p><strong>price</strong> (<em>str</em>) – Product’s price</p></li>
-<li><p><strong>discount</strong> (<em>str</em>) – Product’s discount</p></li>
+<li><p><strong>pricef</strong> (<em>float</em>) – Product’s price as float</p></li>
+<li><p><strong>discount</strong> (<em>str</em>) – Product’s discount percent</p></li>
+<li><p><strong>discountf</strong> (<em>float</em>) – Product’s discount fraction as float</p></li>
 <li><p><strong>currency_code</strong> (<em>str</em>) – Product’s currency code</p></li>
 </ul>
 </dd>
@@ -106,6 +108,7 @@
 <li><p><strong>status</strong> (<em>int</em><em> | </em><em>None</em>) – Status ID</p></li>
 <li><p><strong>delivery_type</strong> (<em>int</em><em> | </em><em>None</em>) – Delivery Type ID</p></li>
 <li><p><strong>delivery_time_type</strong> (<em>int</em><em> | </em><em>None</em>) – Delivery Time Type ID</p></li>
+<li><p><strong>courier_info</strong> (<em>str</em><em> | </em><em>None</em>) – A comment for a courier</p></li>
 <li><p><strong>shop_additional_info</strong> (<em>str</em><em> | </em><em>None</em>) – A comment for a shop</p></li>
 <li><p><strong>comment</strong> (<em>str</em><em> | </em><em>None</em>) – Customer’s comment</p></li>
 <li><p><strong>message</strong> (<em>str</em><em> | </em><em>None</em>) – Card text</p></li>
@@ -129,10 +132,30 @@
 <li><p><strong>offer_id</strong> (<em>str</em><em> | </em><em>None</em>) – Ordered Product’s offer ID</p></li>
 <li><p><strong>product_id</strong> (<em>int</em><em> | </em><em>None</em>) – Ordered Product’s product ID</p></li>
 <li><p><strong>count</strong> (<em>int</em>) – Ordered Product’s number</p></li>
-<li><p><strong>cost</strong> (<em>str</em>) – Ordered Product’s cost //~ specify if it is a cost per unit or an overall cost</p></li>
+<li><p><strong>cost</strong> (<em>str</em>) – Ordered Product’s cost</p></li>
+<li><p><strong>costf</strong> (<em>float</em>) – Ordered Product’s cost as float</p></li>
+<li><p><strong>sum</strong> (<em>str</em>) – Ordered Product’s end cost</p></li>
+<li><p><strong>sumf</strong> (<em>float</em>) – Ordered Product’s end cost as float</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nt_flowwow_seller_client.FwOrderItem.read_product">
+<span class="sig-name descname"><span class="pre">read_product</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#nt_flowwow_seller_client.FwProduct" title="nt_flowwow_seller_client._respmodels.FwProduct"><span class="pre">FwProduct</span></a></span></span><a class="headerlink" href="#nt_flowwow_seller_client.FwOrderItem.read_product" title="Link to this definition">¶</a></dt>
+<dd><p>Reads Product data of the Order Item.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Product data</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#nt_flowwow_seller_client.FwProduct" title="nt_flowwow_seller_client.FwProduct">FwProduct</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="errors.html#nt_flowwow_seller_client.FwParsingError" title="nt_flowwow_seller_client.FwParsingError"><strong>FwParsingError</strong></a> – </p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
